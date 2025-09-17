@@ -101,7 +101,7 @@ const Checkout = () => {
           <div className="flex items-center space-x-4 mb-4">
             <Link 
               to="/cart"
-              className="text-gray-600 hover:text-gray-800 flex items-center"
+              className="text-gray-600 hover:text-gray-800 flex items-center cursor-pointer"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -175,7 +175,7 @@ const Checkout = () => {
                   <button
                     onClick={() => setCurrentStep('review')}
                     disabled={!selectedAddressId}
-                    className="px-8 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="px-8 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
                   >
                     Proceed to Payment
                   </button>
@@ -255,14 +255,14 @@ const Checkout = () => {
                 <div className="flex justify-between">
                   <button
                     onClick={() => setCurrentStep('address')}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium cursor-pointer"
                   >
                     Back to Address
                   </button>
                   <button
                     onClick={handlePlaceOrder}
                     disabled={isSubmitting}
-                    className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center">
@@ -315,7 +315,7 @@ const Checkout = () => {
                 <div className="mt-4">
                   <button
                     onClick={() => setCurrentStep('review')}
-                    className="w-full py-2 px-4 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-medium text-sm"
+                    className="w-full py-2 px-4 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-medium text-sm cursor-pointer"
                   >
                     Proceed to Payment
                   </button>

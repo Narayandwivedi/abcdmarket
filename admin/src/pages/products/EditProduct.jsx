@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAdmin } from '../context/AdminContext';
+import axios from 'axios';
 import { getCategoriesArray, getSubcategoriesForCategory } from '../constants/categories';
 import { getSpecificationTemplate, COMMON_FEATURES } from '../constants/specificationTemplates';
 import { generateSEOTitle, generateTitlePreview } from '../constants/titleGenerator';
@@ -9,7 +9,7 @@ import ImageUpload from '../components/ImageUpload';
 const EditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { productAPI, handleApiError } = useAdmin();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -60,7 +60,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await productAPI.getById(id);
+        const response = await axios.get(`${BACKEND_URL}/api/products/${id}`);
         const product = response.data.data;
         const productData = {
           seoTitle: product.seoTitle || product.name || '', // Fallback to old name if exists
@@ -121,7 +121,7 @@ const EditProduct = () => {
         }
         setManualSpecs(manualSpecifications);
       } catch (error) {
-        alert('Error fetching product: ' + handleApiError(error));
+        alert('Error fetching product: ' + (error.response?.data?.message || error.message));
         navigate('/');
       } finally {
         setInitialLoading(false);
@@ -319,11 +319,11 @@ const EditProduct = () => {
     setLoading(true);
 
     try {
-      await productAPI.update(id, formData);
+      await axios.put(`${BACKEND_URL}/api/products/edit/${id}`, formData);
       alert('Product updated successfully!');
       navigate('/');
     } catch (error) {
-      alert('Error updating product: ' + handleApiError(error));
+      alert('Error updating product: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }

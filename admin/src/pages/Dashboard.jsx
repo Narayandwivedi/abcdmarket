@@ -1,23 +1,95 @@
+import { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../context/AppContext';
+import axios from 'axios';
+
 const Dashboard = () => {
+  const { BACKEND_URL } = useContext(AppContext);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalOrders: 0,
+    ordersLast7Days: 0,
+    loading: true
+  });
+  const [recentOrders, setRecentOrders] = useState([]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setStats(prev => ({ ...prev, loading: true }));
+
+      // Fetch users
+      const usersResponse = await axios.get(`${BACKEND_URL}/api/admin/users`);
+      const totalUsers = usersResponse.data?.data?.users?.length || usersResponse.data?.length || 0;
+
+      // Fetch orders
+      const ordersResponse = await axios.get(`${BACKEND_URL}/api/orders`);
+      const orders = ordersResponse.data?.data?.orders || ordersResponse.data || [];
+      const totalOrders = orders.length;
+
+      // Calculate orders from last 7 days
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const ordersLast7Days = orders.filter(order => {
+        const orderDate = new Date(order.createdAt || order.orderDate);
+        return orderDate >= sevenDaysAgo;
+      }).length;
+
+      // Get recent orders (last 5)
+      const sortedOrders = orders
+        .sort((a, b) => new Date(b.createdAt || b.orderDate) - new Date(a.createdAt || a.orderDate))
+        .slice(0, 5);
+
+      setStats({
+        totalUsers,
+        totalOrders,
+        ordersLast7Days,
+        loading: false
+      });
+
+      setRecentOrders(sortedOrders);
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error.response?.data?.message || error.message);
+      setStats(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatPrice = (price) => {
+    if (!price) return '$0.00';
+    return `$${parseFloat(price).toFixed(2)}`;
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+      case 'delivered':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'processing':
+      case 'shipped':
+        return 'bg-blue-100 text-blue-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <p className="text-gray-500 text-sm">Total Products</p>
-              <p className="text-2xl font-semibold">1,234</p>
-            </div>
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-green-100 text-green-600">
@@ -27,7 +99,9 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-gray-500 text-sm">Total Users</p>
-              <p className="text-2xl font-semibold">856</p>
+              <p className="text-2xl font-semibold">
+                {stats.loading ? '...' : stats.totalUsers}
+              </p>
             </div>
           </div>
         </div>
@@ -41,104 +115,65 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-gray-500 text-sm">Total Orders</p>
-              <p className="text-2xl font-semibold">2,341</p>
+              <p className="text-2xl font-semibold">
+                {stats.loading ? '...' : stats.totalOrders}
+              </p>
             </div>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex items-center">
-            <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+            <div className="p-3 rounded-full bg-blue-100 text-blue-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-gray-500 text-sm">Revenue</p>
-              <p className="text-2xl font-semibold">$45,678</p>
+              <p className="text-gray-500 text-sm">Orders (Last 7 Days)</p>
+              <p className="text-2xl font-semibold">
+                {stats.loading ? '...' : stats.ordersLast7Days}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b">
-              <div>
-                <p className="font-medium">#ORD-001</p>
-                <p className="text-sm text-gray-500">John Doe</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">$299.99</p>
-                <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                  Completed
-                </span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <div>
-                <p className="font-medium">#ORD-002</p>
-                <p className="text-sm text-gray-500">Jane Smith</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">$199.99</p>
-                <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                  Pending
-                </span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center py-2">
-              <div>
-                <p className="font-medium">#ORD-003</p>
-                <p className="text-sm text-gray-500">Bob Johnson</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">$599.99</p>
-                <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                  Processing
-                </span>
-              </div>
-            </div>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
+        {stats.loading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Top Selling Products</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center py-2 border-b">
-              <div>
-                <p className="font-medium">Gaming Laptop RTX 4060</p>
-                <p className="text-sm text-gray-500">Laptop</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">124 sold</p>
-                <p className="text-sm text-gray-500">$1,299.99</p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center py-2 border-b">
-              <div>
-                <p className="font-medium">RTX 4070 Graphics Card</p>
-                <p className="text-sm text-gray-500">GPU</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">89 sold</p>
-                <p className="text-sm text-gray-500">$599.99</p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center py-2">
-              <div>
-                <p className="font-medium">32GB DDR4 RAM</p>
-                <p className="text-sm text-gray-500">Memory</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">156 sold</p>
-                <p className="text-sm text-gray-500">$149.99</p>
-              </div>
-            </div>
+        ) : recentOrders.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No orders found</p>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-4">
+            {recentOrders.map((order, index) => (
+              <div key={order._id || index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                <div>
+                  <p className="font-medium">#{order.orderId || order._id}</p>
+                  <p className="text-sm text-gray-500">
+                    {order.user?.name || order.customerName || 'Unknown Customer'}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {formatDate(order.createdAt || order.orderDate)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium">
+                    {formatPrice(order.totalAmount || order.total)}
+                  </p>
+                  <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
+                    {order.status || 'Pending'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useAdmin } from '../context/AdminContext';
+import axios from 'axios';
 
 const Orders = () => {
-  const { orderAPI, handleApiError } = useAdmin();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -51,10 +51,10 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await orderAPI.getAll();
+      const response = await axios.get(`${BACKEND_URL}/api/orders`);
       setOrders(response.data.data || []);
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorMessage = error.response?.data?.message || error.message;
       console.error('Error fetching orders:', errorMessage);
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ const Orders = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await orderAPI.updateStatus(orderId, newStatus);
+      await axios.patch(`${BACKEND_URL}/api/orders/${orderId}/status`, { status: newStatus });
       // Update local state
       setOrders(orders.map(order => 
         order._id === orderId 
@@ -71,7 +71,7 @@ const Orders = () => {
           : order
       ));
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorMessage = error.response?.data?.message || error.message;
       console.error('Error updating order status:', errorMessage);
     }
   };

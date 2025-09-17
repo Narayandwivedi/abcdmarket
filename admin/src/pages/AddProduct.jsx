@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAdmin } from '../context/AdminContext';
+import axios from 'axios';
 import { getCategoriesArray, getSubcategoriesForCategory } from '../constants/categories';
 import { getSpecificationTemplate, COMMON_FEATURES } from '../constants/specificationTemplates';
 import { generateSEOTitle, generateTitlePreview } from '../constants/titleGenerator';
@@ -8,7 +8,7 @@ import ImageUpload from '../components/ImageUpload';
 
 const AddProduct = () => {
   const navigate = useNavigate();
-  const { productAPI, handleApiError } = useAdmin();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     seoTitle: '', // Main product title (auto-generated)
@@ -263,11 +263,11 @@ const AddProduct = () => {
     setLoading(true);
 
     try {
-      await productAPI.create(formData);
+      await axios.post(`${BACKEND_URL}/api/products/add`, formData);
       alert('Product added successfully!');
       navigate('/');
     } catch (error) {
-      alert('Error adding product: ' + handleApiError(error));
+      alert('Error adding product: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }

@@ -1,12 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from 'react'
-
-// Simulated imports for demonstration
-const Link = ({ to, children, className, onClick }) => (
-  <a href={to} className={className} onClick={onClick}>{children}</a>
-)
-
-const useCart = () => ({ getTotalItems: () => 2 })
-const AppContext = React.createContext()
+import { Link } from 'react-router-dom'
+import { useCart } from '../context/CartContext'
+import { AppContext } from '../context/AppContext'
 
 const Navbar = () => {
   // State Management
@@ -95,7 +90,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Enhanced Logo Section */}
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-0.5 group">
+            <Link to="/" className="flex items-center space-x-0 group">
               <div className="relative">
                 <EmeraldTechLogo />
               </div>
@@ -103,17 +98,17 @@ const Navbar = () => {
               {/* Enhanced Typography */}
               <div className="flex flex-col items-start">
                 <div className="flex items-center">
-                  <span className="text-3xl font-black text-white tracking-tight">
+                  <span className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
                     GC
                   </span>
-                  <span className="text-3xl font-black text-white ml-1 tracking-tight">
+                  <span className="text-xl sm:text-2xl md:text-3xl font-black text-white ml-1 tracking-tight">
                     HUB
                   </span>
-                  <span className="text-lg font-medium text-gray-300 ml-1 -mb-1">
+                  <span className="text-sm sm:text-base md:text-lg font-medium text-gray-300 ml-1 -mb-1">
                     .in
                   </span>
                 </div>
-                <span className="text-[10px] text-gray-400 font-medium tracking-widest uppercase -mt-1">
+                <span className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-400 font-medium tracking-widest uppercase -mt-1">
                   Gamers & Creators
                 </span>
               </div>
@@ -125,49 +120,49 @@ const Navbar = () => {
             <div className="flex items-center space-x-8">
               <Link 
                 to="/" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 Home
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link 
                 to="/pc-build" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 PC Build
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link 
                 to="/laptops" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 Laptop
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link 
                 to="/pc-parts" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 PC Parts
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link 
                 to="/computer-accessories" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 Computer Accessories
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link 
                 to="/contact" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 Contact Us
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-emerald-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link 
                 to="/cart" 
-                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group"
+                className="text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative group cursor-pointer"
               >
                 <div className="flex items-center space-x-1">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,7 +181,7 @@ const Navbar = () => {
               {!isAuthenticated && (
                 <Link 
                   to="/login" 
-                  className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
                 >
                   <span>Login</span>
                 </Link>
@@ -197,7 +192,7 @@ const Navbar = () => {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="flex items-center space-x-2 text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200"
+                    className="flex items-center space-x-2 text-white hover:text-emerald-400 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -262,7 +257,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-white hover:text-emerald-400 focus:outline-none focus:text-emerald-400 p-2"
+              className="text-white hover:text-emerald-400 focus:outline-none focus:text-emerald-400 p-2 cursor-pointer"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isOpen ? (
@@ -281,42 +276,42 @@ const Navbar = () => {
             <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-800 rounded-b-lg">
               <Link
                 to="/"
-                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                 onClick={() => setIsOpen(false)}
               >
                 Home
               </Link>
               <Link
                 to="/pc-build"
-                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                 onClick={() => setIsOpen(false)}
               >
                 PC Build
               </Link>
               <Link
                 to="/laptops"
-                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                 onClick={() => setIsOpen(false)}
               >
                 Laptop
               </Link>
               <Link
                 to="/pc-parts"
-                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                 onClick={() => setIsOpen(false)}
               >
                 PC Parts
               </Link>
               <Link
                 to="/computer-accessories"
-                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                 onClick={() => setIsOpen(false)}
               >
                 Computer Accessories
               </Link>
               <Link
                 to="/contact"
-                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                 onClick={() => setIsOpen(false)}
               >
                 Contact Us
@@ -325,7 +320,7 @@ const Navbar = () => {
               {!isAuthenticated && (
                 <Link
                   to="/login"
-                  className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  className="text-white hover:text-emerald-400 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 cursor-pointer"
                   onClick={() => setIsOpen(false)}
                 >
                   <div className="flex items-center space-x-2">

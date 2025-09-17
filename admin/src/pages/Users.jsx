@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useAdmin } from '../context/AdminContext';
+import axios from 'axios';
 
 const Users = () => {
-  const { userAPI, handleApiError } = useAdmin();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,13 +69,13 @@ const Users = () => {
         isActive: statusFilter !== 'all' ? (statusFilter === 'active') : undefined
       };
 
-      const response = await userAPI.getAll(params);
+      const response = await axios.get(`${BACKEND_URL}/api/admin/users`, { params });
       const data = response.data.data;
       
       setUsers(data.users || []);
       setPagination(data.pagination || pagination);
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const errorMessage = error.response?.data?.message || error.message;
       console.error('Error fetching users:', errorMessage);
     } finally {
       setLoading(false);
@@ -84,20 +84,20 @@ const Users = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await userAPI.getStats();
+      const response = await axios.get(`${BACKEND_URL}/api/admin/users/stats`);
       setStats(response.data.data);
     } catch (error) {
-      console.error('Error fetching stats:', handleApiError(error));
+      console.error('Error fetching stats:', error.response?.data?.message || error.message);
     }
   };
 
   const handleToggleStatus = async (userId) => {
     try {
-      await userAPI.toggleStatus(userId);
+      await axios.patch(`${BACKEND_URL}/api/admin/users/${userId}/toggle-status`);
       fetchUsers();
       fetchStats();
     } catch (error) {
-      console.error('Error toggling user status:', handleApiError(error));
+      console.error('Error toggling user status:', error.response?.data?.message || error.message);
     }
   };
 
@@ -105,23 +105,23 @@ const Users = () => {
     if (!selectedUser || !newPassword) return;
     
     try {
-      await userAPI.resetPassword(selectedUser._id, { newPassword });
+      await axios.post(`${BACKEND_URL}/api/admin/users/${selectedUser._id}/reset-password`, { newPassword });
       setShowPasswordModal(false);
       setNewPassword('');
       setSelectedUser(null);
       alert('Password reset successfully');
     } catch (error) {
-      console.error('Error resetting password:', handleApiError(error));
+      console.error('Error resetting password:', error.response?.data?.message || error.message);
     }
   };
 
   const handleViewUser = async (userId) => {
     try {
-      const response = await userAPI.getById(userId);
+      const response = await axios.get(`${BACKEND_URL}/api/admin/users/${userId}`);
       setSelectedUser(response.data.data.user);
       setShowUserModal(true);
     } catch (error) {
-      console.error('Error fetching user details:', handleApiError(error));
+      console.error('Error fetching user details:', error.response?.data?.message || error.message);
     }
   };
 

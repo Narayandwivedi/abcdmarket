@@ -1,10 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AdminProvider } from './context/AdminContext';
+import { AppContextProvider } from './context/AppContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import ProductList from './pages/ProductList';
-import AddProduct from './pages/AddProduct';
-import EditProduct from './pages/EditProduct';
+import ProductList from './pages/products/ProductList';
 import Users from './pages/Users';
 import Orders from './pages/Orders';
 import ChatSupport from './pages/ChatSupport';
@@ -15,14 +13,12 @@ import './App.css';
 
 function App() {
   return (
-    <AdminProvider>
-      <Router>
+    <Router>
+      <AppContextProvider>
         <Layout>
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/" element={<ProductList />} />
-            <Route path="/add-product" element={<AddProduct />} />
-            <Route path="/edit-product/:id" element={<EditProduct />} />
             <Route path="/users" element={<Users />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/chat-support" element={<ChatSupport />} />
@@ -31,8 +27,8 @@ function App() {
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </Layout>
-      </Router>
-    </AdminProvider>
+      </AppContextProvider>
+    </Router>
   );
 }
 

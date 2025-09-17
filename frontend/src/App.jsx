@@ -36,6 +36,7 @@ import MyOrders from './pages/MyOrders'
 import ManageAddresses from './pages/ManageAddresses'
 import ProfileInfo from './pages/ProfileInfo'
 import CustomerSupport from './pages/CustomerSupport'
+import Account from './pages/Account'
 import ProtectedRoute from './components/ProtectedRoute'
 import BlogsPage from './pages/blog/BlogsPage'
 import BlogDetailPage from './pages/blog/BlogDetailPage'
@@ -53,10 +54,11 @@ const AppContent = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
         <Route path="/manage-addresses" element={<ProtectedRoute><ManageAddresses /></ProtectedRoute>} />
         <Route path="/profile-info" element={<ProtectedRoute><ProfileInfo /></ProtectedRoute>} />
-        <Route path="/customer-support" element={<CustomerSupport />} />
+        <Route path="/customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
