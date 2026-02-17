@@ -1,8 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import { toast } from 'react-toastify'
 
 const MyOrders = () => {
+  const navigate = useNavigate()
   const { BACKEND_URL, user } = useContext(AppContext)
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -33,6 +35,10 @@ const MyOrders = () => {
       case 'cancelled': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
+  }
+
+  const handleOrderClick = (orderId) => {
+    navigate(`/order/${orderId}`)
   }
 
   useEffect(() => {
@@ -105,7 +111,7 @@ const MyOrders = () => {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <div key={order._id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div key={order._id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div className="mb-4 sm:mb-0">
@@ -183,14 +189,28 @@ const MyOrders = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h4a1 1 0 011 1v2a1 1 0 01-1 1h-4v9a1 1 0 01-1 1H9a1 1 0 01-1-1v-9H4a1 1 0 01-1-1V8a1 1 0 011-1h4z" />
                         </svg>
                         <span>
-                          {order.status === 'delivered' 
-                            ? `Delivered on ${formatDate(order.deliveryDate)}` 
+                          {order.status === 'delivered'
+                            ? `Delivered on ${formatDate(order.deliveryDate)}`
                             : `Expected delivery: ${formatDate(order.estimatedDelivery)}`
                           }
                         </span>
                       </div>
                     </div>
                   )}
+
+                  {/* View Details Button */}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <button
+                      onClick={() => handleOrderClick(order._id)}
+                      className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>View Order Details</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

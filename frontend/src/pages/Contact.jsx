@@ -53,14 +53,14 @@ const Contact = () => {
         {isAuthenticated && (
           <div className="mb-8 sm:mb-12">
             <div className="max-w-lg mx-auto text-center">
-              <Link 
-                to="/customer-support"
-                className="inline-flex items-center space-x-3 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+              <Link
+                to="/chat"
+                className="inline-flex items-center space-x-2 bg-gray-800 hover:bg-gray-900 text-white font-medium py-2.5 px-5 rounded-lg transition-colors duration-200 border border-gray-700 hover:border-gray-600"
               >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <span>Chat with Us</span>
+                <span>Chat with us</span>
               </Link>
             </div>
           </div>

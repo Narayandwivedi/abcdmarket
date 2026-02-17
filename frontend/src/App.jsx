@@ -33,9 +33,11 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
 import MyOrders from './pages/MyOrders'
+import OrderDetail from './pages/OrderDetail'
 import ManageAddresses from './pages/ManageAddresses'
 import ProfileInfo from './pages/ProfileInfo'
 import CustomerSupport from './pages/CustomerSupport'
+import ChatPage from './pages/ChatPage'
 import Account from './pages/Account'
 import ProtectedRoute from './components/ProtectedRoute'
 import BlogsPage from './pages/blog/BlogsPage'
@@ -44,10 +46,11 @@ import BlogDetailPage from './pages/blog/BlogDetailPage'
 const AppContent = () => {
   const location = useLocation()
   const isLoginPage = location.pathname === '/login'
+  const isChatPage = location.pathname === '/chat'
 
   return (
     <div className="pb-20 md:pb-0">
-      {!isLoginPage && <Navbar />}
+      {!isLoginPage && !isChatPage && <Navbar />}
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/search" element={<SearchResults />} />
@@ -56,9 +59,11 @@ const AppContent = () => {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
         <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+        <Route path="/order/:orderId" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
         <Route path="/manage-addresses" element={<ProtectedRoute><ManageAddresses /></ProtectedRoute>} />
         <Route path="/profile-info" element={<ProtectedRoute><ProfileInfo /></ProtectedRoute>} />
         <Route path="/customer-support" element={<ProtectedRoute><CustomerSupport /></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
@@ -113,8 +118,8 @@ const AppContent = () => {
         <Route path="/monitors" element={<div>Monitors page coming soon</div>} />
         <Route path="/product/:id" element={<ProductDetail />} />
       </Routes>
-      {!isLoginPage && <Footer />}
-      {!isLoginPage && <MobileBottomNav />}
+      {!isLoginPage && !isChatPage && <Footer />}
+      {!isLoginPage && !isChatPage && <MobileBottomNav />}
       <ToastContainer
         position="top-right"
         autoClose={600}

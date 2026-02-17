@@ -2,8 +2,7 @@ import React from 'react'
 import HeroCarousel from '../components/HeroCarousel'
 import SearchBar from '../components/SearchBar'
 import TopDealsSection from '../components/TopDealsSection'
-import PcPartsSection from '../components/PcPartsSection'
-import AccessoriesSection from '../components/AccessoriesSection'
+import ShopByCategorySection from '../components/ShopByCategorySection'
 
 const Homepage = () => {
   return (
@@ -11,8 +10,7 @@ const Homepage = () => {
       <SearchBar />
       <HeroCarousel />
       <TopDealsSection />
-      <PcPartsSection />
-      <AccessoriesSection />
+      <ShopByCategorySection />
     </div>
   )
 }

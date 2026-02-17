@@ -175,33 +175,33 @@ const SearchBar = () => {
   }
 
   return (
-    <div className="bg-white border-b border-gray-200 py-4">
+    <div className="bg-white border-b border-gray-200 py-3 sm:py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative max-w-2xl mx-auto">
           {/* Search Input */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>
             </div>
             <input
               type="text"
-              placeholder="Search PC parts, laptops..."
+              placeholder="Search onions, fruits, gold ..."
               value={searchQuery}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              className="w-full pl-10 pr-16 sm:pr-20 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 placeholder-gray-500 text-sm sm:text-base"
+              className="w-full pl-9 sm:pl-10 pr-14 sm:pr-20 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 placeholder-gray-500 text-sm sm:text-base"
             />
-            <div className="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center">
+            <div className="absolute inset-y-0 right-0 pr-1.5 sm:pr-3 flex items-center">
               <button
                 onClick={() => handleSearch()}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white px-2 sm:px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-md transition-colors duration-200 flex items-center justify-center"
               >
                 {/* Mobile: Show only search icon */}
-                <svg className="w-4 h-4 sm:hidden" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3.5 h-3.5 sm:hidden" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                 </svg>
                 {/* Desktop: Show text */}

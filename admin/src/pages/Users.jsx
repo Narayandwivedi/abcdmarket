@@ -202,135 +202,129 @@ const Users = () => {
           <p className="text-gray-500 text-lg">No users found matching your criteria.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Join Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Orders
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    OAuth Provider
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          {user.profilePicture ? (
-                            <img
-                              src={user.profilePicture}
-                              alt={user.fullName}
-                              className="h-10 w-10 rounded-full object-cover"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
-                            />
-                          ) : null}
-                          <div className={`h-10 w-10 ${user.profilePicture ? 'hidden' : 'flex'} bg-blue-500 rounded-full items-center justify-center`}>
-                            <span className="text-white font-medium text-sm">
-                              {user.fullName?.charAt(0)?.toUpperCase() || 'U'}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.fullName || 'Unknown User'}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
-                          {user.phone && (
-                            <div className="text-xs text-gray-400">
-                              {user.phone}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
-                        {user.role || 'user'}
+        <>
+          {/* User Cards Grid - 4 cards per row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredUsers.map((user) => (
+              <div key={user._id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                {/* Card Header with Avatar */}
+                <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-center">
+                  <div className="flex justify-center mb-3">
+                    {user.profilePicture ? (
+                      <img
+                        src={user.profilePicture}
+                        alt={user.fullName}
+                        className="h-20 w-20 rounded-full object-cover border-4 border-white"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className={`h-20 w-20 ${user.profilePicture ? 'hidden' : 'flex'} bg-white rounded-full items-center justify-center border-4 border-white`}>
+                      <span className="text-blue-500 font-bold text-2xl">
+                        {user.fullName?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.isActive)}`}>
-                        {getStatusText(user.isActive)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(user.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.totalOrders || 0} orders
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.oauthProvider ? (
+                    </div>
+                  </div>
+                  <h3 className="text-white font-semibold text-lg">
+                    {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.fullName || 'Unknown User'}
+                  </h3>
+                  <div className="mt-2 flex justify-center gap-2">
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getRoleColor(user.role)}`}>
+                      {user.role || 'user'}
+                    </span>
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.isActive)}`}>
+                      {getStatusText(user.isActive)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-5 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">Email</label>
+                    <p className="text-sm text-gray-900 truncate">{user.email}</p>
+                  </div>
+
+                  {user.phone && (
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Phone</label>
+                      <p className="text-sm text-gray-900">{user.phone}</p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Join Date</label>
+                      <p className="text-sm text-gray-900">{formatDate(user.createdAt)}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Orders</label>
+                      <p className="text-sm text-gray-900 font-semibold">{user.totalOrders || 0}</p>
+                    </div>
+                  </div>
+
+                  {user.oauthProvider && (
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">OAuth Provider</label>
+                      <p className="text-sm">
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                           {user.oauthProvider}
                         </span>
-                      ) : (
-                        <span className="text-gray-400">Email/Password</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button 
-                          className="text-blue-600 hover:text-blue-900 transition duration-200"
-                          onClick={() => handleViewUser(user._id)}
-                        >
-                          View
-                        </button>
-                        <button 
-                          className="text-orange-600 hover:text-orange-900 transition duration-200"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setShowPasswordModal(true);
-                          }}
-                        >
-                          Reset Password
-                        </button>
-                        <button 
-                          className={`transition duration-200 ${
-                            user.isActive 
-                              ? 'text-red-600 hover:text-red-900' 
-                              : 'text-green-600 hover:text-green-900'
-                          }`}
-                          onClick={() => handleToggleStatus(user._id)}
-                        >
-                          {user.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Email Verified</label>
+                      <p className="text-sm text-gray-900">{user.isEmailVerified ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Phone Verified</label>
+                      <p className="text-sm text-gray-900">{user.isPhoneVerified ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer - Actions */}
+                <div className="px-5 py-4 bg-gray-50 border-t border-gray-200 flex flex-col gap-2">
+                  <button
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 text-sm font-medium"
+                    onClick={() => handleViewUser(user._id)}
+                  >
+                    View Details
+                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      className="px-3 py-2 bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition duration-200 text-xs font-medium"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setShowPasswordModal(true);
+                      }}
+                    >
+                      Reset Password
+                    </button>
+                    <button
+                      className={`px-3 py-2 rounded-md transition duration-200 text-xs font-medium ${
+                        user.isActive
+                          ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      }`}
+                      onClick={() => handleToggleStatus(user._id)}
+                    >
+                      {user.isActive ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          
+
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+            <div className="mt-6 px-6 py-4 bg-white rounded-lg shadow-md flex items-center justify-between">
               <div className="text-sm text-gray-500">
                 Showing page {pagination.currentPage} of {pagination.totalPages} ({pagination.totalUsers} total users)
               </div>
@@ -352,7 +346,7 @@ const Users = () => {
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* User Details Modal */}

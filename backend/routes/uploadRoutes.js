@@ -5,7 +5,8 @@ const {
   uploadProductImage,
   uploadProductImages,
   deleteProductImage,
-  getProductImage
+  getProductImage,
+  uploadChatFile
 } = require('../controllers/uploadController');
 
 // Upload single product image
@@ -19,5 +20,8 @@ router.delete('/image/:filename', deleteProductImage);
 
 // Get product image
 router.get('/image/:filename', getProductImage);
+
+// Upload chat file
+router.post('/chat', upload.single('chatFile'), uploadChatFile);
 
 module.exports = router;

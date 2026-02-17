@@ -6,9 +6,13 @@ const protect = async (req, res, next) => {
   try {
     let token;
 
-    // Check for token in header
+    // Check for token in header first
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+    }
+    // If no header token, check for token in cookies
+    else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
     }
 
     if (!token) {
@@ -23,7 +27,7 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
       
       // Get user from token
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(decoded.userId);
 
       if (!user) {
         return res.status(401).json({
@@ -111,7 +115,7 @@ const optionalAuth = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
       
       // Get user from token
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(decoded.userId);
 
       if (user && user.isActive) {
         req.user = user;
@@ -186,9 +190,9 @@ const checkResourceOwnership = (resourceField = 'user') => {
     }
 
     // For user-specific resources, check ownership
-    const userId = req.params.userId || req.user.id;
-    
-    if (userId !== req.user.id.toString()) {
+    const userId = req.params.userId || req.user._id;
+
+    if (userId !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: 'Access denied. You can only access your own resources.'

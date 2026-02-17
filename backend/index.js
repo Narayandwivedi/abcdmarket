@@ -11,6 +11,8 @@ const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const addressRoutes = require('./routes/addressRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const seederRoutes = require('./routes/seederRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,6 +38,8 @@ app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/seed', seederRoutes);
 
 // Root route
 app.get('/', (req, res) => {

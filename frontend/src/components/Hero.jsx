@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 const Hero = () => {
 
   return (
-    <section className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50 text-gray-900 py-8 md:py-12">
+    <section className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50 text-gray-900 py-6 md:py-12">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-600/5 via-blue-600/5 to-purple-600/5"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-cyan-400/10 to-transparent rounded-full blur-3xl"></div>
@@ -13,10 +13,10 @@ const Hero = () => {
       <div className="relative w-full px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Mobile Layout */}
-          <div className="lg:hidden space-y-4">
+          <div className="lg:hidden space-y-3">
             {/* Header */}
-            <div className="text-center space-y-3">
-              <h1 className="text-2xl md:text-3xl font-black leading-tight">
+            <div className="text-center space-y-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight">
                 Build Your Dream
                 <span className="block bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Gaming Setup
@@ -25,7 +25,7 @@ const Hero = () => {
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-2 gap-3 px-4 mb-4">
+            <div className="grid grid-cols-2 gap-2 px-3 mb-3">
               <div className="flex flex-col items-center space-y-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-lg">
                   <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -54,7 +54,7 @@ const Hero = () => {
             {/* Image */}
             <div className="relative flex justify-center">
               <div className="relative max-w-xs w-full">
-                <div className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-xl p-4 shadow-lg border border-gray-200 overflow-hidden">
+                <div className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-xl p-3 shadow-lg border border-gray-200 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-purple-500/10 rounded-xl"></div>
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent rounded-xl"></div>
                   
@@ -63,7 +63,7 @@ const Hero = () => {
                   <img 
                     src="/custom pc.webp" 
                     alt="Custom Gaming PC Setup" 
-                    className="w-full h-auto object-contain relative z-20 max-h-40 mx-auto drop-shadow-lg"
+                    className="w-full h-auto object-contain relative z-20 max-h-36 mx-auto drop-shadow-lg"
                   />
 
                 </div>
@@ -75,10 +75,10 @@ const Hero = () => {
             </div>
 
             {/* Call to Action Buttons */}
-            <div className="flex flex-col gap-3 justify-center pb-4 px-4">
+            <div className="flex flex-col gap-2.5 justify-center pb-3 px-3">
               <Link 
                 to="/pc-build" 
-                className="group bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center cursor-pointer flex items-center justify-center"
+                className="group bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-sm py-2.5 px-6 rounded-xl hover:from-cyan-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center cursor-pointer flex items-center justify-center"
               >
                 <span className="mr-2">🚀</span>
                 Build Your PC Now
@@ -89,7 +89,7 @@ const Hero = () => {
               
               <Link 
                 to="/pc-parts" 
-                className="group bg-white text-gray-700 font-semibold py-3 px-6 rounded-xl border-2 border-gray-200 hover:border-cyan-300 hover:bg-cyan-50 transition-all duration-300 text-center cursor-pointer flex items-center justify-center"
+                className="group bg-white text-gray-700 font-semibold text-sm py-2.5 px-6 rounded-xl border-2 border-gray-200 hover:border-cyan-300 hover:bg-cyan-50 transition-all duration-300 text-center cursor-pointer flex items-center justify-center"
               >
                 <span className="mr-2">🛒</span>
                 Browse PC Parts

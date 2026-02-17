@@ -183,13 +183,14 @@ const createOrder = async (req, res) => {
 // Get order by ID
 const getOrder = async (req, res) => {
   try {
-    const { identifier } = req.params; // Order ID
-    
+    const { identifier, orderId } = req.params; // Order ID - can come from either parameter
+    const id = identifier || orderId;
+
     let order;
-    
-    // Check if identifier is a valid ObjectId
-    if (identifier.match(/^[0-9a-fA-F]{24}$/)) {
-      order = await Order.findById(identifier).populate('items.productId');
+
+    // Check if id is a valid ObjectId
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      order = await Order.findById(id).populate('items.productId');
     } else {
       return res.status(400).json({
         success: false,

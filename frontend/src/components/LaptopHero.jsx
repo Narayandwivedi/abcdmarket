@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const LaptopHero = () => {
   return (
-    <section className="relative bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white py-8 md:py-12 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white py-6 md:py-12 overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-blue-600/10 to-cyan-600/10"></div>
       <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-3xl"></div>
@@ -19,10 +19,10 @@ const LaptopHero = () => {
       <div className="relative w-full px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Mobile Layout */}
-          <div className="lg:hidden space-y-4">
+          <div className="lg:hidden space-y-3">
             {/* Header */}
-            <div className="text-center space-y-3">
-              <h1 className="text-2xl md:text-3xl font-black leading-tight">
+            <div className="text-center space-y-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight">
                 Unleash Your 
                 <span className="block bg-gradient-to-r from-purple-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
                   Gaming Potential
@@ -31,7 +31,7 @@ const LaptopHero = () => {
             </div>
 
             {/* Gaming Features */}
-            <div className="grid grid-cols-2 gap-3 px-4 mb-4">
+            <div className="grid grid-cols-2 gap-2 px-3 mb-3">
               <div className="flex flex-col items-center space-y-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
                   <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -60,7 +60,7 @@ const LaptopHero = () => {
             {/* Laptop Image */}
             <div className="relative flex justify-center">
               <div className="relative max-w-xs w-full">
-                <div className="relative bg-gradient-to-br from-slate-800 via-gray-800 to-slate-900 rounded-xl p-4 shadow-lg border border-gray-700 overflow-hidden">
+                <div className="relative bg-gradient-to-br from-slate-800 via-gray-800 to-slate-900 rounded-xl p-3 shadow-lg border border-gray-700 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-cyan-500/10 to-blue-500/10 rounded-xl"></div>
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent rounded-xl"></div>
                   
@@ -69,7 +69,7 @@ const LaptopHero = () => {
                   <img 
                     src="/lapfinal.webp" 
                     alt="Gaming Laptop with RGB Keyboard" 
-                    className="w-full h-auto object-contain relative z-20 max-h-40 mx-auto drop-shadow-lg"
+                    className="w-full h-auto object-contain relative z-20 max-h-36 mx-auto drop-shadow-lg"
                   />
                 </div>
 
@@ -80,10 +80,10 @@ const LaptopHero = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col gap-3 justify-center pb-4 px-4">
+            <div className="flex flex-col gap-2.5 justify-center pb-3 px-3">
               <Link 
                 to="/laptops" 
-                className="group bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 text-white font-bold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center cursor-pointer flex items-center justify-center"
+                className="group bg-gradient-to-r from-purple-600 via-purple-700 to-cyan-600 text-white font-bold text-sm py-2.5 px-6 rounded-xl hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-center cursor-pointer flex items-center justify-center"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <span className="mr-2">💻</span>
@@ -95,7 +95,7 @@ const LaptopHero = () => {
               
               <Link 
                 to="/laptop-comparison" 
-                className="group bg-slate-800 text-gray-200 font-semibold py-3 px-6 rounded-xl border-2 border-gray-600 hover:border-purple-400 hover:bg-slate-700 transition-all duration-300 text-center cursor-pointer flex items-center justify-center"
+                className="group bg-slate-800 text-gray-200 font-semibold text-sm py-2.5 px-6 rounded-xl border-2 border-gray-600 hover:border-purple-400 hover:bg-slate-700 transition-all duration-300 text-center cursor-pointer flex items-center justify-center"
               >
                 <span className="mr-2">⚖️</span>
                 Compare Models
