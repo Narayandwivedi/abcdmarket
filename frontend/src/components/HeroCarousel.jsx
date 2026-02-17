@@ -2,15 +2,19 @@ import React from 'react'
 
 const HeroCarousel = () => {
   return (
-    <section className="w-full md:w-[55%] lg:w-[90%] md:mx-auto">
-      <picture>
-        <source media="(max-width: 767px)" srcSet="/onion3.png" />
+    <section className="w-full md:w-[70%] lg:w-[43%] mx-auto px-4 md:px-0">
+      <div className="grid grid-cols-2 gap-3 md:gap-5 items-center">
         <img
-          src="/onion3.png"
-          alt="ABCD Market Hero Banner"
-          className="w-full h-auto block"
+          src="/banana.png"
+          alt="Banana Hero Banner"
+          className="w-full lg:w-[80%] h-auto block mx-auto"
         />
-      </picture>
+        <img
+          src="/onion.png"
+          alt="Onion Hero Banner"
+          className="w-full lg:w-[80%] h-auto block mx-auto"
+        />
+      </div>
     </section>
   )
 }
