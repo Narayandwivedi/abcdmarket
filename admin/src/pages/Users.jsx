@@ -139,20 +139,20 @@ const Users = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Users Management</h1>
-        <div className="flex space-x-4">
+      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-3 mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">Users Management</h1>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 w-full xl:w-auto">
           <input
             type="text"
             placeholder="Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full sm:w-56 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full sm:w-36 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">All Roles</option>
             <option value="user">User</option>
@@ -162,7 +162,7 @@ const Users = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full sm:w-36 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -173,7 +173,7 @@ const Users = () => {
 
       {/* User Stats */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow-md">
             <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
             <p className="text-2xl font-bold text-gray-900">{stats.overview.totalUsers}</p>
@@ -204,7 +204,7 @@ const Users = () => {
       ) : (
         <>
           {/* User Cards Grid - 4 cards per row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
             {filteredUsers.map((user) => (
               <div key={user._id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                 {/* Card Header with Avatar */}
@@ -324,8 +324,8 @@ const Users = () => {
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="mt-6 px-6 py-4 bg-white rounded-lg shadow-md flex items-center justify-between">
-              <div className="text-sm text-gray-500">
+            <div className="mt-6 px-4 py-3 md:px-6 md:py-4 bg-white rounded-lg shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="text-xs sm:text-sm text-gray-500">
                 Showing page {pagination.currentPage} of {pagination.totalPages} ({pagination.totalUsers} total users)
               </div>
               <div className="flex space-x-2">
@@ -352,8 +352,8 @@ const Users = () => {
       {/* User Details Modal */}
       {showUserModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-3 sm:mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 relative">
               <h3 className="text-lg font-semibold text-gray-900">User Details</h3>
               <button
                 onClick={() => setShowUserModal(false)}
@@ -362,8 +362,8 @@ const Users = () => {
                 ×
               </button>
             </div>
-            <div className="px-6 py-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="px-4 sm:px-6 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Name</label>
                   <p className="text-sm text-gray-900">
@@ -438,8 +438,8 @@ const Users = () => {
       {/* Password Reset Modal */}
       {showPasswordModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-3 sm:mx-4">
+            <div className="px-4 sm:px-6 py-4 border-b border-gray-200 relative">
               <h3 className="text-lg font-semibold text-gray-900">Reset Password</h3>
               <button
                 onClick={() => {
@@ -451,7 +451,7 @@ const Users = () => {
                 ×
               </button>
             </div>
-            <div className="px-6 py-4">
+            <div className="px-4 sm:px-6 py-4">
               <p className="text-sm text-gray-600 mb-4">
                 Reset password for: {selectedUser.firstName && selectedUser.lastName 
                   ? `${selectedUser.firstName} ${selectedUser.lastName}` 
@@ -471,7 +471,7 @@ const Users = () => {
                 />
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+            <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
               <button
                 onClick={() => {
                   setShowPasswordModal(false);

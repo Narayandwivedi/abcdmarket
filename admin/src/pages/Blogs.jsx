@@ -49,15 +49,15 @@ const Blogs = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Blog Management</h1>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">Blog Management</h1>
+        <button className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
           Create New Post
         </button>
       </div>
 
       <div className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <div className="bg-white p-4 rounded-lg shadow-md">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -117,7 +117,32 @@ const Blogs = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="space-y-4 lg:hidden">
+        {blogs.map((blog) => (
+          <div key={blog.id} className="bg-white rounded-lg shadow-md p-4">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="font-semibold text-gray-900 leading-snug">{blog.title}</h3>
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(blog.status)}`}>
+                {blog.status}
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">{blog.excerpt}</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
+              <span className="px-2 py-1 bg-gray-100 rounded-full">{blog.author}</span>
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{blog.category}</span>
+              <span>{blog.publishDate || '-'}</span>
+              <span>{blog.views.toLocaleString()} views</span>
+            </div>
+            <div className="mt-3 flex gap-3 text-sm font-medium">
+              <button className="text-blue-600 hover:text-blue-900 transition duration-200">Edit</button>
+              <button className="text-green-600 hover:text-green-900 transition duration-200">View</button>
+              <button className="text-red-600 hover:text-red-900 transition duration-200">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden lg:block bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

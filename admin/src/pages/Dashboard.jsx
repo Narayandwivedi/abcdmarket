@@ -87,10 +87,10 @@ const Dashboard = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-5 md:mb-6">Dashboard</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-green-100 text-green-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,14 +99,14 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-gray-500 text-sm">Total Users</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-xl md:text-2xl font-semibold">
                 {stats.loading ? '...' : stats.totalUsers}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,14 +115,14 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-gray-500 text-sm">Total Orders</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-xl md:text-2xl font-semibold">
                 {stats.loading ? '...' : stats.totalOrders}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md sm:col-span-2 lg:col-span-1">
           <div className="flex items-center">
             <div className="p-3 rounded-full bg-blue-100 text-blue-600">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +131,7 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-gray-500 text-sm">Orders (Last 7 Days)</p>
-              <p className="text-2xl font-semibold">
+              <p className="text-xl md:text-2xl font-semibold">
                 {stats.loading ? '...' : stats.ordersLast7Days}
               </p>
             </div>
@@ -139,8 +139,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">Recent Orders</h2>
         {stats.loading ? (
           <div className="flex justify-center items-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -152,7 +152,7 @@ const Dashboard = () => {
         ) : (
           <div className="space-y-4">
             {recentOrders.map((order, index) => (
-              <div key={order._id || index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+              <div key={order._id || index} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 py-2 border-b last:border-b-0">
                 <div>
                   <p className="font-medium">#{order.orderId || order._id}</p>
                   <p className="text-sm text-gray-500">
@@ -162,7 +162,7 @@ const Dashboard = () => {
                     {formatDate(order.createdAt || order.orderDate)}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="font-medium">
                     {formatPrice(order.totalAmount || order.total)}
                   </p>

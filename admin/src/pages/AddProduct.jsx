@@ -275,9 +275,9 @@ const AddProduct = () => {
 
   return (
     <div className="w-full max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">Add New Product</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Add New Product</h1>
       
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+      <form onSubmit={handleSubmit} className="bg-white p-4 md:p-6 rounded-lg shadow-md">
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Product Title * (Auto-Generated - You can edit)
@@ -310,7 +310,7 @@ const AddProduct = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Category *
@@ -347,7 +347,7 @@ const AddProduct = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Brand *
@@ -377,7 +377,7 @@ const AddProduct = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               SKU
@@ -407,7 +407,7 @@ const AddProduct = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Price *
@@ -440,7 +440,7 @@ const AddProduct = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Weight (grams)
@@ -474,7 +474,7 @@ const AddProduct = () => {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Dimensions (cm)
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <input
               type="number"
               name="dimensions.length"
@@ -539,7 +539,7 @@ const AddProduct = () => {
           
           {/* Manual Spec Input */}
           <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <div className="flex gap-2 mb-3">
+            <div className="flex flex-col sm:flex-row gap-2 mb-3">
               <input
                 type="text"
                 value={manualSpecKey}
@@ -611,7 +611,7 @@ const AddProduct = () => {
             {/* Custom Feature Input */}
             <div className="mt-4 border-t border-gray-200 pt-4">
               <h4 className="text-md font-medium text-gray-900 mb-3">Add Custom Feature</h4>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={customFeature}
@@ -849,18 +849,18 @@ const AddProduct = () => {
           </label>
         </div>
 
-        <div className="flex justify-end space-x-4">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-4">
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200"
+            className="w-full sm:w-auto px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition duration-200"
+            className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition duration-200"
           >
             {loading ? 'Adding...' : 'Add Product'}
           </button>

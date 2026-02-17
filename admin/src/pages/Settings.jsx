@@ -31,12 +31,12 @@ const Settings = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Settings</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Settings</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* General Settings */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">General Settings</h2>
             
             <div className="space-y-4">
@@ -105,7 +105,7 @@ const Settings = () => {
           </div>
 
           {/* Contact Information */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
             
             <div className="space-y-4">
@@ -151,7 +151,7 @@ const Settings = () => {
           </div>
 
           {/* Notification Settings */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
             <h2 className="text-xl font-semibold mb-4">Notification Settings</h2>
             
             <div className="space-y-4">
@@ -228,7 +228,7 @@ const Settings = () => {
 
         {/* Quick Actions */}
         <div>
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             
             <div className="space-y-3">
@@ -247,7 +247,7 @@ const Settings = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
             <h2 className="text-xl font-semibold mb-4">System Status</h2>
             
             <div className="space-y-3">
@@ -287,10 +287,10 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex justify-stretch sm:justify-end">
         <button
           onClick={handleSave}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+          className="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
         >
           Save Settings
         </button>

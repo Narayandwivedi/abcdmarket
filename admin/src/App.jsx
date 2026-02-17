@@ -9,6 +9,7 @@ import ChatSupport from './pages/ChatSupport';
 import Blogs from './pages/Blogs';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import HeroManagement from './pages/HeroManagement';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route path="/chat-support" element={<ChatSupport />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/hero-management" element={<HeroManagement />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </Layout>

@@ -1,10 +1,10 @@
 const Analytics = () => {
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">Analytics Dashboard</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Page Views</p>
@@ -20,7 +20,7 @@ const Analytics = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Unique Visitors</p>
@@ -35,7 +35,7 @@ const Analytics = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Conversion Rate</p>
@@ -50,7 +50,7 @@ const Analytics = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Revenue</p>
@@ -137,28 +137,32 @@ const Analytics = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Monthly Sales Trend</h2>
-        <div className="h-64 flex items-end space-x-2">
-          {[30, 45, 35, 60, 55, 70, 65, 80, 75, 85, 90, 95].map((height, index) => (
-            <div key={index} className="bg-blue-500 rounded-t flex-1 opacity-80" style={{height: `${height}%`}}>
-              <div className="text-xs text-center text-white p-1">{height}</div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[640px]">
+            <div className="h-64 flex items-end space-x-2">
+              {[30, 45, 35, 60, 55, 70, 65, 80, 75, 85, 90, 95].map((height, index) => (
+                <div key={index} className="bg-blue-500 rounded-t flex-1 opacity-80" style={{height: `${height}%`}}>
+                  <div className="text-xs text-center text-white p-1">{height}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="flex justify-between mt-2 text-sm text-gray-500">
-          <span>Jan</span>
-          <span>Feb</span>
-          <span>Mar</span>
-          <span>Apr</span>
-          <span>May</span>
-          <span>Jun</span>
-          <span>Jul</span>
-          <span>Aug</span>
-          <span>Sep</span>
-          <span>Oct</span>
-          <span>Nov</span>
-          <span>Dec</span>
+            <div className="flex justify-between mt-2 text-sm text-gray-500">
+              <span>Jan</span>
+              <span>Feb</span>
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+              <span>Jul</span>
+              <span>Aug</span>
+              <span>Sep</span>
+              <span>Oct</span>
+              <span>Nov</span>
+              <span>Dec</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -198,10 +198,10 @@ const ChatSupport = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className={`${showChatDetail ? 'p-0 lg:p-6' : 'p-6'} max-w-7xl mx-auto`}>
+      <div className={`${showChatDetail ? 'p-0 lg:p-6' : 'p-3 sm:p-4 lg:p-6'} max-w-7xl mx-auto`}>
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Chat Support Management</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Chat Support Management</h1>
           <p className="text-gray-600">Manage customer support conversations and send replies</p>
           {unreadCount > 0 && (
             <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-800">
@@ -256,7 +256,7 @@ const ChatSupport = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Enhanced User Conversations List */}
-          <div className={`lg:col-span-4 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col ${showChatDetail ? 'hidden lg:flex' : ''}`} style={{ height: 'calc(100vh - 200px)' }}>
+          <div className={`lg:col-span-4 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col ${showChatDetail ? 'hidden lg:flex' : ''}`} style={{ height: 'calc(100vh - 190px)' }}>
             <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 flex-shrink-0">
               <h2 className="text-xl font-bold text-white flex items-center">
                 <User className="w-6 h-6 mr-2" />

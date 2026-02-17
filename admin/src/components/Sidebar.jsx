@@ -69,6 +69,15 @@ const Sidebar = ({ isOpen, onClose }) => {
       )
     },
     {
+      name: 'Hero Banners',
+      path: '/hero-management',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4-4a3 3 0 014.243 0L16 15.757M14 14l1.757-1.757a3 3 0 014.243 0L20 12.343M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      )
+    },
+    {
       name: 'Settings',
       path: '/settings',
       icon: (
@@ -94,14 +103,14 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className={`bg-gray-900 text-white w-64 min-h-screen flex flex-col fixed left-0 top-0 z-50 transform transition-transform duration-300 ease-in-out ${
+    <div className={`bg-gray-900 text-white w-72 max-w-[85vw] lg:w-64 min-h-screen flex flex-col fixed left-0 top-0 z-50 transform transition-transform duration-300 ease-in-out ${
       isOpen ? 'translate-x-0' : '-translate-x-full'
     } lg:translate-x-0`}>
       {/* Logo/Header */}
-      <div className="p-6 border-b border-gray-700 flex items-center justify-between">
+      <div className="p-4 sm:p-6 border-b border-gray-700 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Admin Panel</h1>
-          <p className="text-gray-400 text-sm">Computer Store</p>
+          <h1 className="text-lg sm:text-xl font-bold">Admin Panel</h1>
+          <p className="text-gray-400 text-xs sm:text-sm">Computer Store</p>
         </div>
         {/* Close button for mobile */}
         <button
@@ -115,14 +124,14 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6">
+      <nav className="flex-1 px-3 sm:px-4 py-4 sm:py-6">
         <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.path}>
               <Link
                 to={item.path}
                 onClick={handleLinkClick}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
+                className={`flex items-center text-sm px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors duration-200 ${
                   isActive(item.path)
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-300 hover:bg-gray-800 hover:text-white'

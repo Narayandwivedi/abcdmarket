@@ -97,20 +97,20 @@ const Orders = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Orders Management</h1>
-        <div className="flex space-x-4">
+      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-3 mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold">Orders Management</h1>
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 w-full xl:w-auto">
           <input
             type="text"
             placeholder="Search orders..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full sm:w-56 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full sm:w-40 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">All Orders</option>
             <option value="pending">Pending</option>
@@ -124,7 +124,7 @@ const Orders = () => {
       </div>
 
       {/* Order Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
           <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
@@ -155,18 +155,18 @@ const Orders = () => {
         <div className="space-y-4">
           {filteredOrders.map((order) => (
             <div key={order._id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-6">
+              <div className="p-4 md:p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
                   {/* Order Info */}
                   <div className="mb-4 lg:mb-0 lg:flex-1">
-                    <div className="flex items-center mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 mr-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                      <h3 className="text-base md:text-lg font-semibold text-gray-900 sm:mr-4 break-all">
                         Order #{order._id}
                       </h3>
                       <select
                         value={order.status}
                         onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                        className={`px-3 py-1 rounded-full text-xs font-semibold border-0 ${getStatusColor(order.status)}`}
+                        className={`w-fit px-3 py-1 rounded-full text-xs font-semibold border-0 ${getStatusColor(order.status)}`}
                       >
                         <option value="pending">Pending</option>
                         <option value="confirmed">Confirmed</option>

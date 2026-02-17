@@ -100,7 +100,7 @@ const ImageUpload = ({ onImagesChange, initialImages = [] }) => {
 
       {/* Upload Area */}
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer max-w-md mx-auto ${
+        className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-colors cursor-pointer max-w-md mx-auto ${
           dragOver
             ? 'border-blue-400 bg-blue-50'
             : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
@@ -131,7 +131,7 @@ const ImageUpload = ({ onImagesChange, initialImages = [] }) => {
               />
             </svg>
             <div className="mt-4">
-              <p className="text-lg text-gray-600">
+              <p className="text-base text-gray-600">
                 Click to upload or drag and drop images here
               </p>
               <p className="text-sm text-gray-500 mt-1">
