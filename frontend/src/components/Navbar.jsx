@@ -23,7 +23,7 @@ const ContactQuickActions = ({ mobile = false }) => {
   const buttonPadding = mobile ? 'p-1.5' : 'p-2'
 
   return (
-    <div className={`flex flex-col ${mobile ? 'gap-2.5' : 'gap-2'}`}>
+    <div className={`flex flex-col ${mobile ? '-ml-1 gap-2' : 'gap-2'}`}>
       <a
         href={WHATSAPP_URL}
         target="_blank"
@@ -220,11 +220,12 @@ const Navbar = () => {
           </div>
           
           {/* Mobile Menu Toggle Button */}
-          <div className="md:hidden flex items-center gap-3">
+          <div className="md:hidden flex items-center gap-2">
             <ContactQuickActions mobile />
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-700 hover:text-emerald-600 focus:outline-none focus:text-emerald-600 p-2 cursor-pointer"
+              className="-ml-0.5 text-slate-700 hover:text-emerald-600 focus:outline-none focus:text-emerald-600 p-2 cursor-pointer"
+              aria-label="Toggle menu"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isOpen ? (
@@ -234,6 +235,18 @@ const Navbar = () => {
                 )}
               </svg>
             </button>
+            <Link
+              to="/cart"
+              className="relative text-slate-700 hover:text-emerald-600 p-2 rounded-md transition-colors duration-200"
+              aria-label="Cart"
+            >
+              <img src="/cart.avif" alt="Cart" className="h-6 w-6 object-contain" />
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center shadow">
+                  {getTotalItems()}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
 
