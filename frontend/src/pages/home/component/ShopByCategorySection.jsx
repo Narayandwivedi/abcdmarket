@@ -204,32 +204,35 @@ const ShopByCategorySection = () => {
             const normalizedCategoryName = String(category.name || '').toLowerCase()
             const isFoodMachine = normalizedCategoryName.includes('food machine')
             const isShoppingVoucher = normalizedCategoryName.includes('shopping voucher') || normalizedCategoryName.includes('shoppingvoucher')
-            const stripLabel = isFoodMachine ? 'Food Machines' : isShoppingVoucher ? 'Shop Voucher' : category.name
-            const mobileImageScaleClass = isShoppingVoucher
-              ? 'scale-[1.16] sm:scale-100'
-              : isFoodMachine
-                ? 'scale-[1.15] sm:scale-100'
-                : 'scale-[1.12] sm:scale-100'
+            const isSuperFruits = normalizedCategoryName.includes('super fruits') || normalizedCategoryName.includes('superfruits')
+            const stripLabel = isFoodMachine
+              ? 'Food Machines'
+              : isShoppingVoucher
+                ? 'Shop Voucher'
+                : isSuperFruits
+                  ? 'Superfoods'
+                  : category.name
+            const unifiedImageClassName = 'w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[88%] lg:h-[88%] scale-[1.16] sm:scale-100'
             const destination = getCategoryDestination(category)
             const isExternal = /^https?:\/\//i.test(destination)
-            const cardClassName = `group aspect-square rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center ${
+            const cardClassName = `group aspect-[0.95/1] sm:aspect-square rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center ${
               category.image
                 ? 'border-0 sm:border border-transparent sm:border-slate-200/80 bg-transparent sm:bg-white p-0 sm:p-2.5 md:p-3 shadow-none sm:shadow-[0_6px_16px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 sm:hover:shadow-[0_10px_24px_rgba(14,116,144,0.18)]'
                 : 'border border-slate-200/80 bg-white p-1.5 sm:p-2.5 md:p-3 shadow-[0_6px_16px_rgba(15,23,42,0.08)] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(14,116,144,0.18)]'
             }`
 
             const cardContent = (
-              <div className={`w-full h-full relative rounded-xl overflow-hidden ${category.image ? 'bg-gradient-to-br from-orange-50 via-amber-50 to-red-100 border-0 sm:border border-orange-100' : `bg-gradient-to-br ${category.gradient} text-white`} flex items-center justify-center`}>
+              <div className={`w-full h-full relative rounded-xl overflow-hidden ${category.image ? 'bg-gradient-to-br from-orange-50 via-amber-50 to-red-100 border-0 sm:border border-orange-100 pb-3 sm:pb-0' : `bg-gradient-to-br ${category.gradient} text-white`} flex items-center justify-center`}>
                 {category.image ? (
                   <>
                     <img
                       src={category.image}
                       alt={category.name}
-                      className={`${category.imageClassName || 'w-[100%] h-[100%] sm:w-[90%] sm:h-[90%] lg:w-[76%] lg:h-[76%]'} ${mobileImageScaleClass} object-contain drop-shadow-[0_6px_10px_rgba(0,0,0,0.2)]`}
+                      className={`${unifiedImageClassName} object-contain object-center drop-shadow-[0_6px_10px_rgba(0,0,0,0.2)]`}
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 px-0.5 py-[1px] sm:py-0.5 text-center">
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 px-0.5 py-[2px] sm:py-0.5 text-center">
                       <span
-                        className="inline-block max-w-[96%] truncate whitespace-nowrap text-[11px] sm:text-[12px] lg:text-[13px] font-black leading-[0.98] tracking-[-0.02em] scale-y-[1.08] text-amber-900"
+                        className="inline-block max-w-[97%] truncate whitespace-nowrap text-[10.5px] sm:text-[12px] lg:text-[13px] font-black leading-[1] tracking-[-0.015em] text-amber-900"
                         style={{ fontFamily: '"Bahnschrift Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue Condensed","Liberation Sans Narrow",sans-serif' }}
                       >
                         {stripLabel}
