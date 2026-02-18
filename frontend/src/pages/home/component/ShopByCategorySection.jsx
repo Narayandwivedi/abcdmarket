@@ -201,6 +201,15 @@ const ShopByCategorySection = () => {
           {displayCategories.map((category, index) => {
             const Icon = category.icon
             const iconLabel = category.name === 'Properties' ? 'Property' : category.name
+            const normalizedCategoryName = String(category.name || '').toLowerCase()
+            const isFoodMachine = normalizedCategoryName.includes('food machine')
+            const isShoppingVoucher = normalizedCategoryName.includes('shopping voucher') || normalizedCategoryName.includes('shoppingvoucher')
+            const stripLabel = isFoodMachine ? 'Food Machines' : isShoppingVoucher ? 'Shop Voucher' : category.name
+            const mobileImageScaleClass = isShoppingVoucher
+              ? 'scale-[1.16] sm:scale-100'
+              : isFoodMachine
+                ? 'scale-[1.15] sm:scale-100'
+                : 'scale-[1.12] sm:scale-100'
             const destination = getCategoryDestination(category)
             const isExternal = /^https?:\/\//i.test(destination)
             const cardClassName = `group aspect-square rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center ${
@@ -212,11 +221,21 @@ const ShopByCategorySection = () => {
             const cardContent = (
               <div className={`w-full h-full relative rounded-xl overflow-hidden ${category.image ? 'bg-gradient-to-br from-orange-50 via-amber-50 to-red-100 border-0 sm:border border-orange-100' : `bg-gradient-to-br ${category.gradient} text-white`} flex items-center justify-center`}>
                 {category.image ? (
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className={`${category.imageClassName || 'w-[100%] h-[100%] sm:w-[90%] sm:h-[90%] lg:w-[76%] lg:h-[76%]'} scale-[1.04] sm:scale-100 object-contain drop-shadow-[0_6px_10px_rgba(0,0,0,0.2)]`}
-                  />
+                  <>
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className={`${category.imageClassName || 'w-[100%] h-[100%] sm:w-[90%] sm:h-[90%] lg:w-[76%] lg:h-[76%]'} ${mobileImageScaleClass} object-contain drop-shadow-[0_6px_10px_rgba(0,0,0,0.2)]`}
+                    />
+                    <div className="absolute inset-x-0 bottom-0 sm:hidden bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 px-0.5 py-[1px] text-center">
+                      <span
+                        className="inline-block max-w-[96%] truncate whitespace-nowrap text-[11px] font-black leading-[0.98] tracking-[-0.02em] scale-y-[1.08] text-amber-900"
+                        style={{ fontFamily: '"Bahnschrift Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue Condensed","Liberation Sans Narrow",sans-serif' }}
+                      >
+                        {stripLabel}
+                      </span>
+                    </div>
+                  </>
                 ) : (
                   <>
                     <Icon className="w-8 h-8 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-8 lg:h-8 mb-3 sm:mb-4 drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]" />
