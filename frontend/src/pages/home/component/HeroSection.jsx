@@ -83,8 +83,8 @@ const HeroSection = () => {
     if (displayHeroes.length <= 1) return undefined;
 
     const intervalMs = 1800;
-    const fadeToDarkDurationMs = 650;
-    const darkHoldDurationMs = 80;
+    const fadeToDarkDurationMs = 760;
+    const darkHoldDurationMs = 110;
     const timeoutIds = new Set();
     let isCancelled = false;
 
@@ -163,7 +163,7 @@ const HeroSection = () => {
           className="w-full h-auto block rounded-md"
         />
         <div
-          className={`pointer-events-none absolute inset-0 rounded-md bg-black transition-opacity duration-[650ms] ease-in-out ${isDarkened ? 'opacity-100' : 'opacity-0'}`}
+          className={`pointer-events-none absolute inset-0 rounded-md bg-black transition-opacity duration-[760ms] ease-in-out ${isDarkened ? 'opacity-[0.89]' : 'opacity-0'}`}
         />
       </>
     );
