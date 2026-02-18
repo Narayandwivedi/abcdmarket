@@ -73,11 +73,12 @@ const categories = [
 
 const ShopByCategorySection = () => {
   return (
-    <section className="bg-gradient-to-b from-white via-white to-cyan-50/70 py-8 md:py-10">
-      <div className="max-w-7xl mx-auto px-1.5 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-5">
+    <section className="bg-gradient-to-b from-white via-white to-cyan-50/70 pt-2 pb-8 md:py-10">
+      <div className="max-w-[86rem] mx-auto px-1.5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 md:gap-5">
           {categories.map((category) => {
             const Icon = category.icon
+            const iconLabel = category.name === 'Properties' ? 'Property' : category.name
             return (
               <Link
                 key={category.name}
@@ -90,7 +91,7 @@ const ShopByCategorySection = () => {
                 aria-label={category.name}
                 title={category.name}
               >
-                <div className={`w-full h-full rounded-xl overflow-hidden ${category.image ? 'bg-gradient-to-br from-orange-50 via-amber-50 to-red-100 border-0 sm:border border-orange-100' : `bg-gradient-to-br ${category.gradient} text-white`} flex items-center justify-center`}>
+                <div className={`w-full h-full relative rounded-xl overflow-hidden ${category.image ? 'bg-gradient-to-br from-orange-50 via-amber-50 to-red-100 border-0 sm:border border-orange-100' : `bg-gradient-to-br ${category.gradient} text-white`} flex items-center justify-center`}>
                   {category.image ? (
                     <img
                       src={category.image}
@@ -98,7 +99,12 @@ const ShopByCategorySection = () => {
                       className={`${category.imageClassName || 'w-[100%] h-[100%] sm:w-[90%] sm:h-[90%] lg:w-[76%] lg:h-[76%]'} object-contain drop-shadow-[0_6px_10px_rgba(0,0,0,0.2)]`}
                     />
                   ) : (
-                    <Icon className="w-8 h-8 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-8 lg:h-8 drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]" />
+                    <>
+                      <Icon className="w-8 h-8 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-8 lg:h-8 mb-3 sm:mb-4 drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)]" />
+                      <span className="absolute bottom-1 sm:bottom-2 left-1/2 -translate-x-1/2 max-w-[88%] truncate rounded-full bg-white/90 px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[10px] font-semibold text-slate-800 shadow">
+                        {iconLabel}
+                      </span>
+                    </>
                   )}
                 </div>
               </Link>

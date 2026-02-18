@@ -60,6 +60,7 @@ const HeroSection = () => {
           const altText = hero.title || `Hero banner ${index + 1}`;
           const hasLink = Boolean(hero.linkUrl);
           const isExternal = /^https?:\/\//i.test(hero.linkUrl || '');
+          const visibilityClass = index > 1 ? 'hidden lg:block' : 'block';
 
           const imageNode = (
             <img
@@ -71,7 +72,7 @@ const HeroSection = () => {
 
           if (!hasLink) {
             return (
-              <div key={hero._id || `${imageSrc}-${index}`}>
+              <div key={hero._id || `${imageSrc}-${index}`} className={visibilityClass}>
                 {imageNode}
               </div>
             );
@@ -83,7 +84,7 @@ const HeroSection = () => {
               href={hero.linkUrl}
               target={isExternal ? '_blank' : '_self'}
               rel={isExternal ? 'noopener noreferrer' : undefined}
-              className="block"
+              className={visibilityClass}
             >
               {imageNode}
             </a>

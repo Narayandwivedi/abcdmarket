@@ -9,7 +9,7 @@ const Home = () => {
     <div>
       <SearchBar />
       <HeroSection />
-      <TopDealsSection />
+      {/* <TopDealsSection /> */}
       <ShopByCategorySection />
     </div>
   )
