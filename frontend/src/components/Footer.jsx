@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-5 sm:pt-6 sm:pb-7 lg:pt-8 lg:pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-4 sm:pt-5 sm:pb-6 lg:pt-7 lg:pb-7">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
           {/* Company Info */}
           <div className="md:col-span-2">
-            <div className="mb-2 sm:mb-3">
+            <div className="mb-1.5 sm:mb-2.5">
               <Link to="/" className="inline-flex items-center">
                 <img
                   src="/abcdlogof.webp"
@@ -48,10 +48,10 @@ const Footer = () => {
           </div>
 
           {/* Quick Links + Contact Info in same row on mobile */}
-          <div className="md:col-span-2 grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="md:col-span-2 grid grid-cols-2 gap-2.5 sm:gap-3.5">
             <div>
-              <h3 className="text-white font-semibold text-sm sm:text-base mb-2">Quick Links</h3>
-              <ul className="space-y-1 sm:space-y-1.5">
+              <h3 className="text-white font-semibold text-sm sm:text-base mb-1.5">Quick Links</h3>
+              <ul className="space-y-0.5 sm:space-y-1">
                 <li>
                   <Link to="/" className="text-xs sm:text-sm text-gray-300 hover:text-cyan-300 transition-colors duration-200 cursor-pointer">
                     Home
@@ -81,8 +81,8 @@ const Footer = () => {
             </div>
 
             <div>
-              <h3 className="text-white font-semibold text-sm sm:text-base mb-2">Contact Info</h3>
-              <ul className="space-y-1 sm:space-y-1.5 text-gray-300">
+              <h3 className="text-white font-semibold text-sm sm:text-base mb-1.5">Contact Info</h3>
+              <ul className="space-y-0.5 sm:space-y-1 text-gray-300">
                 <li className="flex items-center space-x-1.5 sm:space-x-2">
                   <svg className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -108,11 +108,11 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-700 mt-4 sm:mt-5 md:mt-6 pt-3 sm:pt-4 md:pt-5 flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t border-gray-700 mt-3 sm:mt-4 md:mt-5 pt-2.5 sm:pt-3 md:pt-4 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-xs sm:text-sm">
             (c) 2024 GC HUB. All rights reserved.
           </p>
-          <div className="flex space-x-3 sm:space-x-5 mt-2 sm:mt-3 md:mt-0">
+          <div className="flex space-x-2 sm:space-x-4 mt-1.5 sm:mt-2.5 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-cyan-300 text-xs sm:text-sm transition-colors duration-200 cursor-pointer">
               Privacy Policy
             </a>
