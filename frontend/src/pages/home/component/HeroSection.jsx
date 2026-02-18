@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { AppContext } from '../../../context/AppContext';
 
@@ -18,11 +18,28 @@ const resolveHeroImageUrl = (backendUrl, imageUrl) => {
   return imageUrl;
 };
 
+const getNextHeroIndex = (currentIndex, lockedIndex, totalHeroes) => {
+  if (totalHeroes <= 1) return 0;
+
+  let nextIndex = (currentIndex + 1) % totalHeroes;
+  if (totalHeroes === 2) return nextIndex;
+
+  let guard = 0;
+  while (nextIndex === lockedIndex && guard < totalHeroes) {
+    nextIndex = (nextIndex + 1) % totalHeroes;
+    guard += 1;
+  }
+
+  return nextIndex;
+};
+
 const HeroSection = () => {
   const { BACKEND_URL } = useContext(AppContext);
   const [heroes, setHeroes] = useState([]);
-  const [mobileSlideIndex, setMobileSlideIndex] = useState(0);
-  const [isMobileDarkened, setIsMobileDarkened] = useState(false);
+  const [mobileSlotIndices, setMobileSlotIndices] = useState([0, 1]);
+  const [mobileDarkSlot, setMobileDarkSlot] = useState(null);
+  const mobileSlotIndicesRef = useRef([0, 1]);
+  const activeMobileSlotRef = useRef(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -54,23 +71,20 @@ const HeroSection = () => {
     return demoHeroes;
   }, [heroes]);
 
-  const mobileChunkSize = 2;
-  const mobileChunkCount = useMemo(() => {
-    return Math.max(1, Math.ceil(displayHeroes.length / mobileChunkSize));
+  useEffect(() => {
+    const initialSlots = [0, displayHeroes.length > 1 ? 1 : 0];
+    mobileSlotIndicesRef.current = initialSlots;
+    activeMobileSlotRef.current = 1;
+    setMobileSlotIndices(initialSlots);
+    setMobileDarkSlot(null);
   }, [displayHeroes.length]);
 
   useEffect(() => {
-    setMobileSlideIndex(0);
-    setIsMobileDarkened(false);
-  }, [mobileChunkCount]);
+    if (displayHeroes.length <= 1) return undefined;
 
-  useEffect(() => {
-    if (mobileChunkCount <= 1) return undefined;
-
-    const clearDurationMs = 1500;
-    const fadeToDarkDurationMs = 850;
-    const darkHoldDurationMs = 120;
-    const fadeToClearBufferMs = 700;
+    const intervalMs = 1800;
+    const fadeToDarkDurationMs = 650;
+    const darkHoldDurationMs = 80;
     const timeoutIds = new Set();
     let isCancelled = false;
 
@@ -87,61 +101,76 @@ const HeroSection = () => {
     const runCycle = () => {
       if (isCancelled) return;
 
-      // Start from a clear/normal frame.
-      setIsMobileDarkened(false);
+      const slotToChange = activeMobileSlotRef.current;
+      const lockedSlot = slotToChange === 0 ? 1 : 0;
+      const currentSlots = mobileSlotIndicesRef.current;
+
+      // Fade only the card that is about to change.
+      setMobileDarkSlot(slotToChange);
 
       schedule(() => {
-        // Slowly dim to dark.
-        setIsMobileDarkened(true);
+        const nextSlots = [...currentSlots];
+        nextSlots[slotToChange] = getNextHeroIndex(
+          currentSlots[slotToChange],
+          currentSlots[lockedSlot],
+          displayHeroes.length
+        );
+        mobileSlotIndicesRef.current = nextSlots;
+        setMobileSlotIndices(nextSlots);
+      }, fadeToDarkDurationMs);
 
-        schedule(() => {
-          // Switch while frame is dark.
-          setMobileSlideIndex((prev) => (prev + 1) % mobileChunkCount);
+      schedule(() => {
+        setMobileDarkSlot(null);
+        activeMobileSlotRef.current = lockedSlot;
+      }, fadeToDarkDurationMs + darkHoldDurationMs);
 
-          schedule(() => {
-            // Reveal the new frame clearly.
-            setIsMobileDarkened(false);
-
-            // Keep it clear for a while, then repeat.
-            schedule(() => {
-              runCycle();
-            }, clearDurationMs + fadeToClearBufferMs);
-          }, darkHoldDurationMs);
-        }, fadeToDarkDurationMs);
-      }, clearDurationMs);
+      schedule(() => {
+        runCycle();
+      }, intervalMs);
     };
 
-    runCycle();
+    schedule(() => {
+      runCycle();
+    }, intervalMs);
 
     return () => {
       isCancelled = true;
       timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
       timeoutIds.clear();
     };
-  }, [mobileChunkCount]);
+  }, [displayHeroes.length]);
 
   const mobileHeroes = useMemo(() => {
-    const start = mobileSlideIndex * mobileChunkSize;
-    return displayHeroes.slice(start, start + mobileChunkSize);
-  }, [displayHeroes, mobileSlideIndex]);
+    if (displayHeroes.length === 0) return [];
+    const [leftIndex, rightIndex] = mobileSlotIndices;
+    return [
+      displayHeroes[leftIndex] || displayHeroes[0],
+      displayHeroes[rightIndex] || displayHeroes[0]
+    ];
+  }, [displayHeroes, mobileSlotIndices]);
 
-  const renderHeroItem = (hero, index, keyPrefix = 'hero') => {
+  const renderHeroItem = (hero, index, keyPrefix = 'hero', isDarkened = false) => {
     const imageSrc = resolveHeroImageUrl(BACKEND_URL, hero.imageUrl);
     const altText = hero.title || `Hero banner ${index + 1}`;
     const hasLink = Boolean(hero.linkUrl);
     const isExternal = /^https?:\/\//i.test(hero.linkUrl || '');
 
     const imageNode = (
-      <img
-        src={imageSrc}
-        alt={altText}
-        className="w-full h-auto block rounded-md"
-      />
+      <>
+        <img
+          src={imageSrc}
+          alt={altText}
+          className="w-full h-auto block rounded-md"
+        />
+        <div
+          className={`pointer-events-none absolute inset-0 rounded-md bg-black transition-opacity duration-[650ms] ease-in-out ${isDarkened ? 'opacity-100' : 'opacity-0'}`}
+        />
+      </>
     );
 
     if (!hasLink) {
       return (
-        <div key={`${keyPrefix}-${hero._id || imageSrc}-${index}`}>
+        <div key={`${keyPrefix}-${hero._id || imageSrc}-${index}`} className="relative">
           {imageNode}
         </div>
       );
@@ -153,6 +182,7 @@ const HeroSection = () => {
         href={hero.linkUrl}
         target={isExternal ? '_blank' : '_self'}
         rel={isExternal ? 'noopener noreferrer' : undefined}
+        className="relative block"
       >
         {imageNode}
       </a>
@@ -161,11 +191,10 @@ const HeroSection = () => {
 
   return (
     <section className="w-full lg:w-[92%] mx-auto px-2 sm:px-4">
-      <div className="relative lg:hidden">
-        <div className="grid grid-cols-2 gap-2 md:gap-4 items-center">
-          {mobileHeroes.map((hero, index) => renderHeroItem(hero, index + (mobileSlideIndex * mobileChunkSize), 'mobile'))}
-        </div>
-        <div className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-[850ms] ease-in-out ${isMobileDarkened ? 'opacity-100' : 'opacity-0'}`} />
+      <div className="grid grid-cols-2 gap-2 md:gap-4 items-center lg:hidden">
+        {mobileHeroes.map((hero, index) =>
+          renderHeroItem(hero, mobileSlotIndices[index] || index, 'mobile', mobileDarkSlot === index)
+        )}
       </div>
 
       <div className="hidden lg:grid lg:grid-cols-4 gap-2 md:gap-4 items-center">
