@@ -20,9 +20,7 @@ const MobileBottomNav = () => {
       path: '/cart',
       name: 'Cart',
       icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m2.6 8L8 13m0 0L5.6 5M8 13v6a2 2 0 002 2h8a2 2 0 002-2v-6M8 13H6m6 8a2 2 0 100-4 2 2 0 000 4zm6 0a2 2 0 100-4 2 2 0 000 4z" />
-        </svg>
+        <img src="/cart.avif" alt="Cart" className="w-5 h-5 object-contain" />
       ),
       badge: getTotalItems()
     },
