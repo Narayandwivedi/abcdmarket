@@ -7,18 +7,19 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-2 sm:pt-5 sm:pb-6 lg:pt-7 lg:pb-7">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
           {/* Company Info */}
-          <div className="md:col-span-2">
-            <div className="sm:mb-2.5">
-              <Link to="/" className="inline-flex items-center">
-                <img
-                  src="/abcdlogof.webp"
-                  alt="ABCD Market Logo"
-                  className="h-36 w-36 sm:h-40 sm:w-40 object-contain"
-                />
-              </Link>
-            </div>
+          <div className="md:col-span-2 mt-2">
+            <div className="flex items-center justify-between sm:block">
+              <div className="sm:mb-2.5">
+                <Link to="/" className="inline-flex items-center">
+                  <img
+                    src="/abcdlogof.webp"
+                    alt="ABCD Market Logo"
+                    className="mt-2 sm:mt-0 w-30 h-[64px] object-cover block sm:h-40 sm:w-40 sm:object-contain"
+                  />
+                </Link>
+              </div>
 
-            <div className="flex space-x-3">
+              <div className="flex space-x-3">
               <a href="#" className="text-gray-300 hover:text-cyan-300 transition-colors duration-200 cursor-pointer" aria-label="X">
                 <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.847h-7.406l-5.8-7.584-6.64 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.9 1.153Zm-1.29 19.495h2.039L6.486 3.24H4.298l13.313 17.408Z" />
@@ -44,6 +45,7 @@ const Footer = () => {
                   <circle cx="18.406" cy="5.594" r="1.44" />
                 </svg>
               </a>
+              </div>
             </div>
           </div>
 
