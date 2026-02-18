@@ -227,9 +227,9 @@ const ShopByCategorySection = () => {
                       alt={category.name}
                       className={`${category.imageClassName || 'w-[100%] h-[100%] sm:w-[90%] sm:h-[90%] lg:w-[76%] lg:h-[76%]'} ${mobileImageScaleClass} object-contain drop-shadow-[0_6px_10px_rgba(0,0,0,0.2)]`}
                     />
-                    <div className="absolute inset-x-0 bottom-0 sm:hidden bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 px-0.5 py-[1px] text-center">
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-400 px-0.5 py-[1px] sm:py-0.5 text-center">
                       <span
-                        className="inline-block max-w-[96%] truncate whitespace-nowrap text-[11px] font-black leading-[0.98] tracking-[-0.02em] scale-y-[1.08] text-amber-900"
+                        className="inline-block max-w-[96%] truncate whitespace-nowrap text-[11px] sm:text-[12px] lg:text-[13px] font-black leading-[0.98] tracking-[-0.02em] scale-y-[1.08] text-amber-900"
                         style={{ fontFamily: '"Bahnschrift Condensed","Roboto Condensed","Arial Narrow","Helvetica Neue Condensed","Liberation Sans Narrow",sans-serif' }}
                       >
                         {stripLabel}

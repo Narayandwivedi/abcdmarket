@@ -18,6 +18,9 @@ const resolveHeroImageUrl = (backendUrl, imageUrl) => {
   return imageUrl;
 };
 
+const MOBILE_VISIBLE_CARDS = 2.4;
+const MOBILE_CARD_WIDTH_PERCENT = 100 / MOBILE_VISIBLE_CARDS;
+
 const HeroSection = () => {
   const { BACKEND_URL } = useContext(AppContext);
   const [heroes, setHeroes] = useState([]);
@@ -134,10 +137,14 @@ const HeroSection = () => {
       <div className="relative overflow-hidden lg:hidden">
         <div
           className={`${isMobileSliding ? 'transition-transform duration-700 ease-in-out' : 'transition-none'} flex`}
-          style={{ transform: isMobileSliding ? 'translateX(-50%)' : 'translateX(0%)' }}
+          style={{ transform: isMobileSliding ? `translateX(-${MOBILE_CARD_WIDTH_PERCENT}%)` : 'translateX(0%)' }}
         >
           {mobileSlideHeroes.map(({ hero, heroIndex, offset }) => (
-            <div key={`mobile-hero-${hero._id || heroIndex}-${mobileStartIndex}-${offset}`} className="w-1/2 shrink-0 px-1">
+            <div
+              key={`mobile-hero-${hero._id || heroIndex}-${mobileStartIndex}-${offset}`}
+              className="shrink-0 px-1"
+              style={{ width: `${MOBILE_CARD_WIDTH_PERCENT}%` }}
+            >
               {renderHeroItem(hero, heroIndex, `mobile-${offset}`)}
             </div>
           ))}
