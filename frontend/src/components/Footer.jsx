@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-4 sm:pt-5 sm:pb-6 lg:pt-7 lg:pb-7">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-2 sm:pt-5 sm:pb-6 lg:pt-7 lg:pb-7">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
           {/* Company Info */}
           <div className="md:col-span-2">
-            <div className="mb-1.5 sm:mb-2.5">
+            <div className="sm:mb-2.5">
               <Link to="/" className="inline-flex items-center">
                 <img
                   src="/abcdlogof.webp"
