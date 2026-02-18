@@ -108,17 +108,6 @@ const demoCategories = [
     image: '/school.avif',
     imageClassName: 'w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]',
   },
-  { name: 'Bakery', query: 'bakery', icon: Croissant, gradient: 'from-orange-500 to-amber-600' },
-  { name: 'Spices', query: 'spices', icon: CookingPot, gradient: 'from-rose-500 to-red-600' },
-  { name: 'Dry Fruits', query: 'dry fruits', icon: Leaf, gradient: 'from-lime-500 to-green-600' },
-  { name: 'Packaged Goods', query: 'packaged goods', icon: Package, gradient: 'from-slate-500 to-gray-700' },
-  { name: 'Meat & Fish', query: 'fish', icon: Fish, gradient: 'from-sky-500 to-cyan-600' },
-  { name: 'Jewallary', query: 'jewallary', icon: Gem, gradient: 'from-fuchsia-500 to-pink-600' },
-  { name: 'Gold', query: 'gold', icon: Coins, gradient: 'from-yellow-500 to-orange-500' },
-  { name: 'Properties', query: 'properties', icon: Building2, gradient: 'from-blue-600 to-indigo-700' },
-  { name: 'Home Essentials', query: 'home essentials', icon: House, gradient: 'from-teal-500 to-cyan-600' },
-  { name: 'Electronics', query: 'electronics', icon: Smartphone, gradient: 'from-violet-500 to-purple-700' },
-  { name: 'Fashion', query: 'fashion', icon: Shirt, gradient: 'from-pink-500 to-rose-600' },
 ]
 
 const resolveCategoryImageUrl = (backendUrl, imageUrl) => {
@@ -201,8 +190,8 @@ const ShopByCategorySection = () => {
   }, [BACKEND_URL])
 
   const displayCategories = useMemo(() => {
-    if (backendCategories.length > 0) return backendCategories
-    return demoCategories
+    const sourceCategories = backendCategories.length > 0 ? backendCategories : demoCategories
+    return sourceCategories.filter((category) => Boolean(category.image))
   }, [backendCategories])
 
   return (
