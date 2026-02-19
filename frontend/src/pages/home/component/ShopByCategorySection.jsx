@@ -198,18 +198,20 @@ const ShopByCategorySection = () => {
     <section className="bg-gradient-to-b from-white via-white to-cyan-50/70 pt-2 pb-2 md:py-10">
       <div className="max-w-[86rem] mx-auto px-1 sm:px-6 lg:px-8">
         <div className="mb-2 sm:mb-4">
-          <div className="mx-auto grid w-full max-w-xl grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3">
+          <div className="mx-auto grid w-full max-w-xl grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
+            <h2 className="whitespace-nowrap justify-self-start text-left text-[14px] sm:text-[22px] font-extrabold text-slate-900 tracking-[0.02em]">
+              <span className="inline-block border-b-2 border-amber-500 pb-[1px]">
+                Shop by Category
+              </span>
+            </h2>
             <img
               src="/topdeal.avif"
               alt="Top Deal"
-              className="relative left-3 sm:left-5 md:left-6 w-28 sm:w-40 md:w-48 h-auto rounded-md object-contain"
+              className="relative left-1 sm:left-2 md:left-3 w-28 sm:w-40 md:w-48 h-auto rounded-md object-contain"
               loading="lazy"
             />
-            <h2 className="whitespace-nowrap text-center text-[14px] sm:text-[22px] font-bold text-slate-800 tracking-[0.01em]">
-              Shop by Category
-            </h2>
             <span
-              className="invisible w-28 sm:w-40 md:w-48"
+              className="invisible"
               aria-hidden="true"
             />
           </div>
