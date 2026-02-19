@@ -166,14 +166,14 @@ const Login = () => {
       </div>
 
       {/* Header with Logo */}
-      <div className={`${isLogin && !showForgotPassword ? 'pt-1 pb-4' : 'pt-5 pb-6'} px-6 text-center relative z-10`}>
+      <div className={`${!showForgotPassword ? 'pt-1 pb-4' : 'pt-5 pb-6'} px-6 text-center relative z-10`}>
         <div className="mb-4">
           <img
             src="/abcdmarket%20logo.webp"
             alt="ABCD Market Logo"
-            className="h-20 w-auto mx-auto object-contain mb-1"
+            className="h-20 w-auto mx-auto object-contain mb-0"
           />
-          <p className="text-white text-opacity-80 text-base font-medium">
+          <p className="-mt-1 text-white text-opacity-80 text-base font-medium">
             {showForgotPassword ? 'Reset Your Password' : (isLogin ? 'Welcome Back!' : 'Join Us Today')}
           </p>
         </div>
@@ -181,11 +181,17 @@ const Login = () => {
 
       {/* Main Content */}
       <div className={`bg-white mx-3 -mt-2 rounded-t-[2rem] relative z-10 shadow-2xl ${!isLogin && !showForgotPassword ? 'flex-1 min-h-0 overflow-hidden' : 'min-h-[65vh]'}`}>
-        <div className={`px-6 ${isLogin && !showForgotPassword ? 'pt-6 pb-6' : 'pt-8 pb-8'} ${!isLogin ? 'max-h-[calc(100vh-200px)] overflow-y-auto' : ''}`}>
+        <div className={`px-6 ${
+          isLogin && !showForgotPassword
+            ? 'pt-6 pb-6'
+            : !isLogin && !showForgotPassword
+            ? 'pt-8 pb-2 h-full overflow-y-auto'
+            : 'pt-8 pb-8'
+        }`}>
         {!showForgotPassword ? (
           <>
             {/* Google Sign-in at Top */}
-            <div className={`w-full flex justify-center ${isLogin && !showForgotPassword ? 'mb-4' : 'mb-8'}`}>
+            <div className="w-full flex justify-center mb-4">
               <GoogleLogin />
             </div>
 
