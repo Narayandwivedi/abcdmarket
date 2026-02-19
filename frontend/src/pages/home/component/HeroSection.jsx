@@ -18,14 +18,14 @@ const resolveHeroImageUrl = (backendUrl, imageUrl) => {
   return imageUrl;
 };
 
-const MOBILE_VISIBLE_CARDS = 2.4;
+const MOBILE_VISIBLE_CARDS = 2;
 const MOBILE_CARD_WIDTH_PERCENT = 100 / MOBILE_VISIBLE_CARDS;
 
 const HeroSection = () => {
   const { BACKEND_URL } = useContext(AppContext);
   const [heroes, setHeroes] = useState([]);
   const [mobileStartIndex, setMobileStartIndex] = useState(0);
-  const [isMobileSliding, setIsMobileSliding] = useState(false);
+  const [isMobileTransitionEnabled, setIsMobileTransitionEnabled] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -53,50 +53,58 @@ const HeroSection = () => {
   }, [BACKEND_URL]);
 
   const displayHeroes = useMemo(() => {
-    if (heroes.length > 0) return heroes;
-    return demoHeroes;
+    if (heroes.length === 0) return demoHeroes;
+
+    const normalizedHeroes = heroes.slice(0, 4);
+    if (normalizedHeroes.length >= 4) return normalizedHeroes;
+
+    const missingCount = 4 - normalizedHeroes.length;
+    return [...normalizedHeroes, ...demoHeroes.slice(0, missingCount)];
   }, [heroes]);
 
-  const mobileSlideHeroes = useMemo(() => {
-    const total = displayHeroes.length;
-    if (total === 0) return [];
+  const mobileTrackHeroes = useMemo(() => {
+    if (displayHeroes.length === 0) return [];
+    if (displayHeroes.length === 1) return displayHeroes;
 
-    return [0, 1, 2].map((offset) => {
-      const heroIndex = (mobileStartIndex + offset) % total;
-      return {
-        hero: displayHeroes[heroIndex],
-        heroIndex,
-        offset
-      };
-    });
-  }, [displayHeroes, mobileStartIndex]);
+    const cloneCount = Math.min(MOBILE_VISIBLE_CARDS, displayHeroes.length);
+    return [...displayHeroes, ...displayHeroes.slice(0, cloneCount)];
+  }, [displayHeroes]);
 
   useEffect(() => {
     setMobileStartIndex(0);
-    setIsMobileSliding(false);
+    setIsMobileTransitionEnabled(true);
   }, [displayHeroes.length]);
 
   useEffect(() => {
     if (displayHeroes.length <= 1) return undefined;
 
-    const intervalMs = 1800;
-    const slideDurationMs = 700;
-    let slideTimeoutId;
-
-    const intervalId = setInterval(() => {
-      setIsMobileSliding(true);
-
-      slideTimeoutId = setTimeout(() => {
-        setMobileStartIndex((prev) => (prev + 1) % displayHeroes.length);
-        setIsMobileSliding(false);
-      }, slideDurationMs);
-    }, intervalMs);
+    const startTimeoutId = setTimeout(() => {
+      setIsMobileTransitionEnabled(true);
+      setMobileStartIndex(1);
+    }, 60);
 
     return () => {
-      clearInterval(intervalId);
-      clearTimeout(slideTimeoutId);
+      clearTimeout(startTimeoutId);
     };
   }, [displayHeroes.length]);
+
+  const handleMobileTransitionEnd = () => {
+    if (displayHeroes.length <= 1) return;
+
+    if (mobileStartIndex >= displayHeroes.length) {
+      setIsMobileTransitionEnabled(false);
+      setMobileStartIndex(0);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsMobileTransitionEnabled(true);
+          setMobileStartIndex(1);
+        });
+      });
+      return;
+    }
+
+    setMobileStartIndex((prev) => prev + 1);
+  };
 
   const renderHeroItem = (hero, index, keyPrefix = 'hero') => {
     const imageSrc = resolveHeroImageUrl(BACKEND_URL, hero.imageUrl);
@@ -136,16 +144,17 @@ const HeroSection = () => {
     <section className="w-full lg:w-[92%] mx-auto px-1 sm:px-4">
       <div className="relative overflow-hidden lg:hidden">
         <div
-          className={`${isMobileSliding ? 'transition-transform duration-700 ease-in-out' : 'transition-none'} flex`}
-          style={{ transform: isMobileSliding ? `translateX(-${MOBILE_CARD_WIDTH_PERCENT}%)` : 'translateX(0%)' }}
+          className={`${isMobileTransitionEnabled ? 'transition-transform duration-[900ms] ease-linear' : 'transition-none'} flex`}
+          style={{ transform: `translateX(-${mobileStartIndex * MOBILE_CARD_WIDTH_PERCENT}%)` }}
+          onTransitionEnd={handleMobileTransitionEnd}
         >
-          {mobileSlideHeroes.map(({ hero, heroIndex, offset }) => (
+          {mobileTrackHeroes.map((hero, index) => (
             <div
-              key={`mobile-hero-${hero._id || heroIndex}-${mobileStartIndex}-${offset}`}
+              key={`mobile-hero-${hero._id || index}-${index}`}
               className="shrink-0 px-0.5"
               style={{ width: `${MOBILE_CARD_WIDTH_PERCENT}%` }}
             >
-              {renderHeroItem(hero, heroIndex, `mobile-${offset}`)}
+              {renderHeroItem(hero, index, `mobile-${index}`)}
             </div>
           ))}
         </div>
