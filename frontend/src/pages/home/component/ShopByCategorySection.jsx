@@ -204,12 +204,20 @@ const ShopByCategorySection = () => {
                 Shop by Category
               </span>
             </h2>
-            <img
-              src="/topdeal.avif"
-              alt="Top Deal"
-              className="relative left-1 sm:left-2 md:left-3 w-28 sm:w-40 md:w-48 h-auto rounded-md object-contain"
-              loading="lazy"
-            />
+            <div className="relative left-1 sm:left-2 md:left-3 inline-flex items-center gap-1.5 sm:gap-2">
+              <img
+                src="/topdeal.avif"
+                alt="Top Deal"
+                className="w-28 sm:w-40 md:w-48 h-auto rounded-md object-contain"
+                loading="lazy"
+              />
+              <img
+                src="/topdeal.avif"
+                alt="Top Deal"
+                className="w-28 sm:w-40 md:w-48 h-auto rounded-md object-contain"
+                loading="lazy"
+              />
+            </div>
             <span
               className="invisible"
               aria-hidden="true"
