@@ -231,6 +231,14 @@ const HeroSection = () => {
         src={imageSrc}
         alt={altText}
         className="w-full h-auto block rounded-md"
+        draggable={false}
+        onDragStart={(event) => event.preventDefault()}
+        onContextMenu={(event) => event.preventDefault()}
+        style={{
+          userSelect: 'none',
+          WebkitUserDrag: 'none',
+          WebkitTouchCallout: 'none',
+        }}
       />
     );
 
@@ -244,6 +252,12 @@ const HeroSection = () => {
           if (didSwipeRef.current) {
             event.preventDefault();
           }
+        }}
+        onContextMenu={(event) => event.preventDefault()}
+        onDragStart={(event) => event.preventDefault()}
+        style={{
+          userSelect: 'none',
+          WebkitTouchCallout: 'none',
         }}
       >
         {imageNode}
@@ -265,6 +279,7 @@ const HeroSection = () => {
           onTouchMove={handleMobileTouchMove}
           onTouchEnd={handleMobileTouchEnd}
           onTouchCancel={handleMobileTouchCancel}
+          onContextMenu={(event) => event.preventDefault()}
         >
           {mobileTrackHeroes.map((hero, index) => (
             <div
