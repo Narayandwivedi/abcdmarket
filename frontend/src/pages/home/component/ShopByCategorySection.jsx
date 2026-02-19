@@ -195,43 +195,57 @@ const demoCategories = [
     imageClassName:
       "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
   },
-  {
-    name: "Home Appliances",
-    query: "home appliances",
-    icon: House,
-    gradient: "from-cyan-500 to-teal-600",
-    image: "/homeapplainces.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
-  {
-    name: "Hardware",
-    query: "hardware",
-    icon: Package,
-    gradient: "from-indigo-500 to-blue-700",
-    image: "/hardware.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
-  {
-    name: "Plywood",
-    query: "plywood",
-    icon: Package,
-    gradient: "from-amber-600 to-orange-700",
-    image: "/plywood.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
-  {
-    name: "School",
-    query: "school",
-    icon: Building2,
-    gradient: "from-sky-500 to-blue-700",
-    image: "/school.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
+ 
+
 ];
+
+const namkeenCategory = {
+  _id: "static-namkeen",
+  name: "Namkeen",
+  query: "namkeen",
+  redirectUrl: "",
+  image: "/namkeen.avif",
+  icon: Croissant,
+  gradient: "from-amber-500 to-orange-600",
+  imageClassName:
+    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+};
+
+const flightsCategory = {
+  _id: "static-flights",
+  name: "Flights",
+  query: "flights",
+  redirectUrl: "",
+  image: "/flights.avif",
+  icon: Package,
+  gradient: "from-sky-500 to-blue-600",
+  imageClassName:
+    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+};
+
+const oldBikeCategory = {
+  _id: "static-old-bike",
+  name: "Old Bike",
+  query: "old bike",
+  redirectUrl: "",
+  image: "/oldbike_converted.avif",
+  icon: Package,
+  gradient: "from-slate-500 to-gray-700",
+  imageClassName:
+    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+};
+
+const newBikeCategory = {
+  _id: "static-new-bike",
+  name: "New Bike",
+  query: "new bike",
+  redirectUrl: "",
+  image: "/newbike_converted.avif",
+  icon: Package,
+  gradient: "from-sky-500 to-blue-700",
+  imageClassName:
+    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+};
 
 const resolveCategoryImageUrl = (backendUrl, imageUrl) => {
   if (!imageUrl) return "";
@@ -325,7 +339,29 @@ const ShopByCategorySection = () => {
   const displayCategories = useMemo(() => {
     const sourceCategories =
       backendCategories.length > 0 ? backendCategories : demoCategories;
-    return sourceCategories.filter((category) => Boolean(category.image));
+    const categoriesWithImage = sourceCategories.filter((category) =>
+      Boolean(category.image),
+    );
+    const requiredCategories = [
+      namkeenCategory,
+      flightsCategory,
+      oldBikeCategory,
+      newBikeCategory,
+    ];
+
+    return requiredCategories.reduce((updatedCategories, requiredCategory) => {
+      const requiredName = String(requiredCategory.name || "")
+        .trim()
+        .toLowerCase();
+      const alreadyExists = updatedCategories.some(
+        (category) =>
+          String(category.name || "").trim().toLowerCase() === requiredName,
+      );
+
+      return alreadyExists
+        ? updatedCategories
+        : [...updatedCategories, requiredCategory];
+    }, categoriesWithImage);
   }, [backendCategories]);
 
   return (
