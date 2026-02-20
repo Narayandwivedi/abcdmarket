@@ -383,11 +383,17 @@ const ShopByCategorySection = () => {
   return (
     <section className="bg-gradient-to-b from-white via-white to-cyan-50/70 pt-2 pb-2 md:py-10">
       <div className="max-w-[86rem] mx-auto px-1 sm:px-6 lg:px-8">
-        <div className="mb-2 sm:mb-4">
+        <div className="mb-2 sm:mb-4 flex items-center gap-2 sm:gap-4">
           <img
             src="/hotdeals.png"
             alt="Hot Deals"
-            className="block mr-auto w-1/2 max-w-[32rem] h-auto rounded-md object-contain"
+            className="block w-[49%] max-w-[32rem] h-auto rounded-md object-contain"
+            loading="lazy"
+          />
+          <img
+            src="/quiz.png"
+            alt="Quiz"
+            className="block w-[49%] max-w-[32rem] h-auto rounded-md object-contain"
             loading="lazy"
           />
         </div>
