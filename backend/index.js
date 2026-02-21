@@ -12,16 +12,16 @@ const orderRoutes = require('./routes/orderRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const addressRoutes = require('./routes/addressRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-const seederRoutes = require('./routes/seederRoutes');
 const heroRoutes = require('./routes/heroRoutes');
 const shopCategoryRoutes = require('./routes/shopCategoryRoutes');
+const sellerAuthRoutes = require('./routes/sellerAuthRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
   credentials: true,
 }))
 app.use(cookieParser());
@@ -41,9 +41,9 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/seed', seederRoutes);
 app.use('/api/heroes', heroRoutes);
 app.use('/api/shop-categories', shopCategoryRoutes);
+app.use('/api/seller-auth', sellerAuthRoutes);
 
 // Root route
 app.get('/', (req, res) => {

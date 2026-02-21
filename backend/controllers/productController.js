@@ -1,4 +1,26 @@
 const Product = require('../models/Product');
+const jwt = require('jsonwebtoken');
+
+const normalizeText = (value = '') => String(value).trim();
+
+const extractSellerId = (payload) => {
+  if (!payload) return '';
+  if (typeof payload === 'string') return normalizeText(payload);
+  if (typeof payload !== 'object') return '';
+  return normalizeText(payload.sellerId || payload.id || payload._id || '');
+};
+
+const getSellerIdFromCookie = (req) => {
+  try {
+    const token = req.cookies?.sellerToken;
+    if (!token) return '';
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return normalizeText(decoded?.sellerId || '');
+  } catch (error) {
+    return '';
+  }
+};
 
 const addProduct = async (req, res) => {
   try {
@@ -25,7 +47,11 @@ const addProduct = async (req, res) => {
       keywords,
       warranty,
       isActive,
-      isFeatured
+      isFeatured,
+      sellerId,
+      seller,
+      sellerInfo,
+      vendor
     } = req.body;
 
     // Validate required fields
@@ -37,6 +63,14 @@ const addProduct = async (req, res) => {
     }
 
     console.log('Creating product with seoTitle:', seoTitle); // Debug log
+
+    const requestSellerId =
+      extractSellerId(sellerId) ||
+      extractSellerId(seller) ||
+      extractSellerId(sellerInfo) ||
+      extractSellerId(vendor);
+    const cookieSellerId = getSellerIdFromCookie(req);
+    const resolvedSellerId = requestSellerId || cookieSellerId || undefined;
 
     const product = new Product({
       seoTitle,
@@ -60,7 +94,8 @@ const addProduct = async (req, res) => {
       keywords,
       warranty: warranty !== undefined ? warranty : 1,
       isActive: isActive !== undefined ? isActive : true,
-      isFeatured: isFeatured !== undefined ? isFeatured : false
+      isFeatured: isFeatured !== undefined ? isFeatured : false,
+      ...(resolvedSellerId ? { sellerId: resolvedSellerId } : {})
     });
 
     const savedProduct = await product.save();
@@ -80,7 +115,21 @@ const addProduct = async (req, res) => {
 const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
+
+    const normalizedSellerId =
+      extractSellerId(updateData.sellerId) ||
+      extractSellerId(updateData.seller) ||
+      extractSellerId(updateData.sellerInfo) ||
+      extractSellerId(updateData.vendor);
+
+    if (normalizedSellerId) {
+      updateData.sellerId = normalizedSellerId;
+    }
+
+    delete updateData.seller;
+    delete updateData.sellerInfo;
+    delete updateData.vendor;
 
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
