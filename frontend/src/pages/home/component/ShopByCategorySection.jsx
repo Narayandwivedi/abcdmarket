@@ -125,140 +125,174 @@ const demoCategories = [
     imageClassName:
       "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
   },
-  {
-    name: "Fruits",
-    query: "fruits",
-    icon: Apple,
-    gradient: "from-red-500 to-orange-500",
-    image: "/fruits.avif",
-  },
-  {
-    name: "Super Fruits",
-    query: "super fruits",
-    icon: Apple,
-    gradient: "from-pink-500 to-rose-600",
-    image: "/superfoods.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
-  {
-    name: "Vegetables",
-    query: "vegetables",
-    icon: Carrot,
-    gradient: "from-green-500 to-emerald-600",
-    image: "/veg.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
-  {
-    name: "Food Machine",
-    query: "food machine",
-    icon: CookingPot,
-    gradient: "from-amber-500 to-yellow-600",
-    image: "/foodmachine.avif",
-    imageClassName:
-      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-  },
- 
 
+  {
+    _id: "static-namkeen",
+    name: "Namkeen",
+    query: "namkeen",
+    redirectUrl: "",
+    image: "/namkeen.avif",
+    icon: Croissant,
+    gradient: "from-amber-500 to-orange-600",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-flights",
+    name: "Flights",
+    query: "flights",
+    redirectUrl: "",
+    image: "/flights.avif",
+    icon: Package,
+    gradient: "from-sky-500 to-blue-600",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-old-bike",
+    name: "Old Bike",
+    query: "old bike",
+    redirectUrl: "",
+    image: "/oldbike_converted.avif",
+    icon: Package,
+    gradient: "from-slate-500 to-gray-700",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-new-bike",
+    name: "New Bike",
+    query: "new bike",
+    redirectUrl: "",
+    image: "/newbike_converted.avif",
+    icon: Package,
+    gradient: "from-sky-500 to-blue-700",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-used-car",
+    name: "Used Car",
+    query: "used car",
+    redirectUrl: "",
+    image: "/usedcar.avif",
+    icon: Package,
+    gradient: "from-slate-500 to-gray-700",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-new-car",
+    name: "New Car",
+    query: "new car",
+    redirectUrl: "",
+    image: "/newcar.avif",
+    icon: Package,
+    gradient: "from-sky-500 to-blue-700",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-full-body-checkup",
+    name: "Full Body Checkup",
+    query: "full body checkup",
+    redirectUrl: "",
+    image: "/fullbody.avif",
+    icon: Package,
+    gradient: "from-emerald-500 to-teal-600",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-flat",
+    name: "Flat",
+    query: "flat",
+    redirectUrl: "",
+    image: "/flat.avif",
+    icon: Building2,
+    gradient: "from-cyan-500 to-blue-600",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-plot",
+    name: "Plot",
+    query: "plot",
+    redirectUrl: "",
+    image: "/plot.avif",
+    icon: Building2,
+    gradient: "from-emerald-500 to-green-600",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-jobs",
+    name: "Jobs",
+    query: "jobs",
+    redirectUrl: "",
+    image: "/jobs.avif",
+    icon: Package,
+    gradient: "from-indigo-500 to-blue-700",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
+  {
+    _id: "static-homemade-foods",
+    name: "Homemade Foods",
+    query: "homemade foods",
+    redirectUrl: "",
+    image: "/homemade.avif",
+    icon: Croissant,
+    gradient: "from-orange-500 to-red-600",
+    imageClassName:
+      "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+  },
 
 ];
 
-const namkeenCategory = {
-  _id: "static-namkeen",
-  name: "Namkeen",
-  query: "namkeen",
-  redirectUrl: "",
-  image: "/namkeen.avif",
-  icon: Croissant,
-  gradient: "from-amber-500 to-orange-600",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+const topCategoryOrder = [
+  "fruits",
+  "vegetables",
+  "superfoods",
+  "groceries",
+  "homemade foods",
+  "dryfruits",
+];
+
+const normalizeText = (value = "") =>
+  String(value).trim().toLowerCase().replace(/[^a-z0-9]+/g, " ");
+
+const getCategoryUniqueKey = (category = {}) => {
+  const normalizedName = normalizeText(category.name);
+  const normalizedQuery = normalizeText(category.query);
+  return normalizedName || normalizedQuery;
 };
 
-const flightsCategory = {
-  _id: "static-flights",
-  name: "Flights",
-  query: "flights",
-  redirectUrl: "",
-  image: "/flights.avif",
-  icon: Package,
-  gradient: "from-sky-500 to-blue-600",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
+const getCategoryOrderKey = (category = {}) => {
+  const normalized = `${normalizeText(category.name)} ${normalizeText(category.query)}`.trim();
+
+  if (normalized.includes("super fruit") || normalized.includes("superfood")) {
+    return "superfoods";
+  }
+  if (normalized.includes("homemade food")) {
+    return "homemade foods";
+  }
+  if (normalized.includes("dry fruit") || normalized.includes("dryfruits")) {
+    return "dryfruits";
+  }
+  if (normalized.includes("vegetable")) {
+    return "vegetables";
+  }
+  if (normalized.includes("grocery") || normalized.includes("groceries")) {
+    return "groceries";
+  }
+  if (normalized.includes("fruit")) {
+    return "fruits";
+  }
+
+  return normalizeText(category.name);
 };
 
-const oldBikeCategory = {
-  _id: "static-old-bike",
-  name: "Old Bike",
-  query: "old bike",
-  redirectUrl: "",
-  image: "/oldbike_converted.avif",
-  icon: Package,
-  gradient: "from-slate-500 to-gray-700",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-};
-
-const newBikeCategory = {
-  _id: "static-new-bike",
-  name: "New Bike",
-  query: "new bike",
-  redirectUrl: "",
-  image: "/newbike_converted.avif",
-  icon: Package,
-  gradient: "from-sky-500 to-blue-700",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-};
-
-const fullBodyCheckupCategory = {
-  _id: "static-full-body-checkup",
-  name: "Full Body Checkup",
-  query: "full body checkup",
-  redirectUrl: "",
-  image: "/fullbody.avif",
-  icon: Package,
-  gradient: "from-emerald-500 to-teal-600",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-};
-
-const flatCategory = {
-  _id: "static-flat",
-  name: "Flat",
-  query: "flat",
-  redirectUrl: "",
-  image: "/flat.avif",
-  icon: Building2,
-  gradient: "from-cyan-500 to-blue-600",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-};
-
-const plotCategory = {
-  _id: "static-plot",
-  name: "Plot",
-  query: "plot",
-  redirectUrl: "",
-  image: "/plot.avif",
-  icon: Building2,
-  gradient: "from-emerald-500 to-green-600",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-};
-
-const jobsCategory = {
-  _id: "static-jobs",
-  name: "Jobs",
-  query: "jobs",
-  redirectUrl: "",
-  image: "/jobs.avif",
-  icon: Package,
-  gradient: "from-indigo-500 to-blue-700",
-  imageClassName:
-    "w-[100%] h-[100%] sm:w-[96%] sm:h-[96%] lg:w-[86%] lg:h-[86%]",
-};
 const resolveCategoryImageUrl = (backendUrl, imageUrl) => {
   if (!imageUrl) return "";
   if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
@@ -291,16 +325,37 @@ const getFallbackIcon = (name = "") => {
   return Package;
 };
 
+const toCategorySlug = (value = "") =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const buildCategoryPageDestination = (name = "", query = "") => {
+  const normalizedName = String(name || query || "").trim();
+  const normalizedQuery = String(query || name || "").trim();
+  const slug = toCategorySlug(normalizedName || normalizedQuery);
+
+  if (!slug) return "/";
+
+  const params = new URLSearchParams();
+  if (normalizedName) params.set("name", normalizedName);
+  if (normalizedQuery) params.set("query", normalizedQuery);
+
+  return `/category/${slug}?${params.toString()}`;
+};
+
 const getCategoryDestination = (category) => {
   const redirectUrl = String(category.redirectUrl || "").trim();
   if (redirectUrl) {
     if (/^https?:\/\//i.test(redirectUrl)) return redirectUrl;
     if (redirectUrl.startsWith("/")) return redirectUrl;
-    return `/search?q=${encodeURIComponent(redirectUrl)}`;
+    return buildCategoryPageDestination(category.name || redirectUrl, redirectUrl);
   }
 
-  const query = String(category.query || category.name || "").trim();
-  return `/search?q=${encodeURIComponent(query)}`;
+  return buildCategoryPageDestination(category.name, category.query);
 };
 
 const ShopByCategorySection = () => {
@@ -354,18 +409,11 @@ const ShopByCategorySection = () => {
     const categoriesWithImage = sourceCategories.filter((category) =>
       Boolean(category.image),
     );
-    const requiredCategories = [
-      namkeenCategory,
-      flightsCategory,
-      oldBikeCategory,
-      newBikeCategory,
-      fullBodyCheckupCategory,
-      flatCategory,
-      plotCategory,
-      jobsCategory,
-    ];
+    const requiredCategories = demoCategories.filter((category) =>
+      String(category._id || "").startsWith("static-"),
+    );
 
-    return requiredCategories.reduce((updatedCategories, requiredCategory) => {
+    const mergedCategories = requiredCategories.reduce((updatedCategories, requiredCategory) => {
       const requiredName = String(requiredCategory.name || "")
         .trim()
         .toLowerCase();
@@ -378,6 +426,30 @@ const ShopByCategorySection = () => {
         ? updatedCategories
         : [...updatedCategories, requiredCategory];
     }, categoriesWithImage);
+
+    const uniqueCategories = [];
+    const seenKeys = new Set();
+
+    mergedCategories.forEach((category) => {
+      const uniqueKey = getCategoryUniqueKey(category);
+      if (!uniqueKey || seenKeys.has(uniqueKey)) return;
+      seenKeys.add(uniqueKey);
+      uniqueCategories.push(category);
+    });
+
+    return [...uniqueCategories].sort((firstCategory, secondCategory) => {
+      const firstPriority = topCategoryOrder.indexOf(
+        getCategoryOrderKey(firstCategory),
+      );
+      const secondPriority = topCategoryOrder.indexOf(
+        getCategoryOrderKey(secondCategory),
+      );
+
+      const normalizedFirst = firstPriority === -1 ? Number.MAX_SAFE_INTEGER : firstPriority;
+      const normalizedSecond = secondPriority === -1 ? Number.MAX_SAFE_INTEGER : secondPriority;
+
+      return normalizedFirst - normalizedSecond;
+    });
   }, [backendCategories]);
 
   return (

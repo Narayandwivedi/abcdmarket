@@ -13,6 +13,7 @@ import Contact from './pages/Contact'
 import Login from './pages/Login'
 import ProductDetail from './pages/ProductDetail'
 import SearchResults from './pages/SearchResults'
+import CategoryResults from './pages/CategoryResults'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Profile from './pages/Profile'
@@ -38,6 +39,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/category/:categorySlug" element={<CategoryResults />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
