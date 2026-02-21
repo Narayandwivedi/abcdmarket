@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { searchSuggestions } from '../data/searchSuggestions'
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('')

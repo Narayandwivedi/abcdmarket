@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { demoBlogs } from '../../data/demoBlogs';
 
 const BlogDetailPage = () => {
   const { slug } = useParams();

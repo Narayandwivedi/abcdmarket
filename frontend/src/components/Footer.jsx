@@ -105,6 +105,15 @@ const Footer = () => {
                   <span className="text-xs sm:text-sm">info@gchub.in</span>
                 </li>
               </ul>
+
+              <div className="mt-3 sm:mt-4">
+                <a
+                  href="#"
+                  className="seller-blink-button inline-flex items-center justify-center rounded-md px-3 py-1.5 text-xs sm:text-sm font-semibold transition-transform duration-200 hover:scale-105"
+                >
+                  Sell on Abcd market
+                </a>
+              </div>
             </div>
           </div>
         </div>
