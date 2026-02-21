@@ -496,14 +496,6 @@ const Login = () => {
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={authLoading}
-            className="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {authLoading ? 'Please wait...' : 'Logout'}
-          </button>
         </div>
 
         {renderFeedback()}
