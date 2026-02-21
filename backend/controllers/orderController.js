@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const User = require('../models/User');
@@ -7,6 +8,7 @@ const nodemailer = require('nodemailer');
 const createOrder = async (req, res) => {
   try {
     const { items, shippingAddress, addressId, customerNotes, paymentMethod = 'cod', userId } = req.body;
+    const normalizedPaymentMethod = paymentMethod === 'cod' ? 'cod' : 'cod';
 
     // For logged-in users, get customer info from user data
     let customerInfo = {};
@@ -79,41 +81,91 @@ const createOrder = async (req, res) => {
     const processedItems = [];
 
     for (const item of items) {
-      if (!item.productId || !item.quantity || item.quantity < 1) {
+      const productId = String(item?.productId || '').trim();
+      const parsedQuantity = Number(item?.quantity);
+      const quantity = Number.isFinite(parsedQuantity) && parsedQuantity > 0
+        ? Math.floor(parsedQuantity)
+        : 0;
+
+      if (!productId || quantity < 1) {
         return res.status(400).json({
           success: false,
           message: 'Each item must have a valid productId and quantity'
         });
       }
 
-      // Fetch product details
-      const product = await Product.findById(item.productId);
-      if (!product) {
+      const isDemoItem = Boolean(item?.isDemo) || productId.startsWith('demo-');
+      const isObjectIdProduct = mongoose.Types.ObjectId.isValid(productId);
+
+      if (!isObjectIdProduct && !isDemoItem) {
         return res.status(400).json({
           success: false,
-          message: `Product with ID ${item.productId} not found`
+          message: `Invalid product ID ${productId}`
         });
       }
 
-      // Check stock availability
-      if (product.stockQuantity < item.quantity) {
+      // Process real DB product item
+      if (isObjectIdProduct && !isDemoItem) {
+        const product = await Product.findById(productId);
+        if (!product) {
+          return res.status(400).json({
+            success: false,
+            message: `Product with ID ${productId} not found`
+          });
+        }
+
+        // Check stock availability
+        if (product.stockQuantity < quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for ${product.name}. Available: ${product.stockQuantity}, Requested: ${quantity}`
+          });
+        }
+
+        const subtotal = product.price * quantity;
+        totalAmount += subtotal;
+        totalItems += quantity;
+
+        processedItems.push({
+          isDemo: false,
+          productId: product._id,
+          productName: product.name || product.seoTitle,
+          productBrand: product.brand || 'Unknown',
+          productPrice: product.price,
+          quantity,
+          subtotal
+        });
+
+        continue;
+      }
+
+      // Process demo item (no stock check, no DB product required)
+      const parsedProductPrice = Number(item?.productPrice);
+      const productPrice = Number.isFinite(parsedProductPrice) && parsedProductPrice > 0
+        ? parsedProductPrice
+        : 0;
+      const productName = String(item?.productName || '').trim();
+      const productBrand = String(item?.productBrand || 'Demo').trim() || 'Demo';
+
+      if (!productName || productPrice <= 0) {
         return res.status(400).json({
           success: false,
-          message: `Insufficient stock for ${product.name}. Available: ${product.stockQuantity}, Requested: ${item.quantity}`
+          message: `Demo item ${productId} must include productName and productPrice`
         });
       }
 
-      const subtotal = product.price * item.quantity;
+      const subtotal = productPrice * quantity;
       totalAmount += subtotal;
-      totalItems += item.quantity;
+      totalItems += quantity;
 
       processedItems.push({
-        productId: product._id,
-        productName: product.name || product.seoTitle,
-        productBrand: product.brand || 'Unknown',
-        productPrice: product.price,
-        quantity: item.quantity,
-        subtotal: subtotal
+        isDemo: true,
+        demoProductId: productId,
+        productName,
+        productBrand,
+        productPrice,
+        quantity,
+        subtotal
       });
     }
 
@@ -125,7 +177,7 @@ const createOrder = async (req, res) => {
       totalItems,
       shippingAddress: finalShippingAddress,
       customerNotes: customerNotes || '',
-      paymentMethod,
+      paymentMethod: normalizedPaymentMethod,
       userId: userId || null
     });
 
@@ -144,6 +196,7 @@ const createOrder = async (req, res) => {
 
     // Update product stock quantities
     for (const item of processedItems) {
+      if (item.isDemo || !item.productId) continue;
       await Product.findByIdAndUpdate(
         item.productId,
         { $inc: { stockQuantity: -item.quantity } },

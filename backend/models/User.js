@@ -136,10 +136,45 @@ const userSchema = new mongoose.Schema({
   },
 
   cart: [{
+    isDemo: {
+      type: Boolean,
+      default: false
+    },
+    demoProductId: {
+      type: String,
+      trim: true,
+      required: function() {
+        return this.isDemo;
+      }
+    },
+    demoProductName: {
+      type: String,
+      trim: true,
+      required: function() {
+        return this.isDemo;
+      }
+    },
+    demoProductBrand: {
+      type: String,
+      trim: true,
+      default: 'Demo'
+    },
+    demoProductPrice: {
+      type: Number,
+      min: 0,
+      default: 0
+    },
+    demoImageUrl: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product',
-      required: true
+      required: function() {
+        return !this.isDemo;
+      }
     },
     quantity: {
       type: Number,
@@ -203,17 +238,91 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 
 
 // Method to add item to cart
-userSchema.methods.addToCart = function(productId, quantity = 1) {
-  const existingItem = this.cart.find(item => 
-    item.product.toString() === productId.toString()
+userSchema.methods.addToCart = function(productInput, quantity = 1) {
+  const normalizedQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
+  const isObjectInput = productInput && typeof productInput === 'object' && !Array.isArray(productInput);
+
+  const rawProductId = isObjectInput
+    ? (productInput.productId || productInput._id || productInput.id)
+    : productInput;
+  const normalizedProductId = String(rawProductId || '').trim();
+
+  if (!normalizedProductId) {
+    return Promise.resolve(this);
+  }
+
+  const isDemo = (isObjectInput && Boolean(productInput.isDemo)) || normalizedProductId.startsWith('demo-');
+
+  if (isDemo) {
+    const existingDemoItem = this.cart.find(
+      (item) => item.isDemo && String(item.demoProductId || '') === normalizedProductId
+    );
+
+    if (existingDemoItem) {
+      existingDemoItem.quantity += normalizedQuantity;
+
+      if (isObjectInput) {
+        existingDemoItem.demoProductName =
+          productInput.productName ||
+          productInput.name ||
+          existingDemoItem.demoProductName ||
+          'Demo Product';
+        existingDemoItem.demoProductBrand =
+          productInput.productBrand ||
+          productInput.brand ||
+          productInput.category ||
+          existingDemoItem.demoProductBrand ||
+          'Demo';
+        existingDemoItem.demoProductPrice = Math.max(
+          0,
+          Number(productInput.productPrice ?? productInput.price ?? existingDemoItem.demoProductPrice ?? 0) || 0
+        );
+        existingDemoItem.demoImageUrl =
+          productInput.imageUrl ||
+          productInput.image ||
+          (Array.isArray(productInput.images) ? productInput.images[0] : '') ||
+          existingDemoItem.demoImageUrl ||
+          '';
+      }
+    } else {
+      this.cart.push({
+        isDemo: true,
+        demoProductId: normalizedProductId,
+        demoProductName: isObjectInput
+          ? (productInput.productName || productInput.name || 'Demo Product')
+          : 'Demo Product',
+        demoProductBrand: isObjectInput
+          ? (productInput.productBrand || productInput.brand || productInput.category || 'Demo')
+          : 'Demo',
+        demoProductPrice: isObjectInput
+          ? Math.max(0, Number(productInput.productPrice ?? productInput.price ?? 0) || 0)
+          : 0,
+        demoImageUrl: isObjectInput
+          ? (
+            productInput.imageUrl ||
+            productInput.image ||
+            (Array.isArray(productInput.images) ? productInput.images[0] : '') ||
+            ''
+          )
+          : '',
+        quantity: normalizedQuantity
+      });
+    }
+
+    return this.save();
+  }
+
+  const existingItem = this.cart.find(
+    (item) => !item.isDemo && item.product && item.product.toString() === normalizedProductId
   );
 
   if (existingItem) {
-    existingItem.quantity += quantity;
+    existingItem.quantity += normalizedQuantity;
   } else {
     this.cart.push({
-      product: productId,
-      quantity: quantity
+      isDemo: false,
+      product: normalizedProductId,
+      quantity: normalizedQuantity
     });
   }
 
@@ -222,9 +331,23 @@ userSchema.methods.addToCart = function(productId, quantity = 1) {
 
 // Method to remove item from cart
 userSchema.methods.removeFromCart = function(productId) {
-  this.cart = this.cart.filter(item => 
-    item.product.toString() !== productId.toString()
-  );
+  const normalizedProductId = String(productId || '').trim();
+
+  if (!normalizedProductId) {
+    return Promise.resolve(this);
+  }
+
+  const isDemo = normalizedProductId.startsWith('demo-');
+
+  this.cart = this.cart.filter((item) => {
+    if (isDemo) {
+      return !(item.isDemo && String(item.demoProductId || '') === normalizedProductId);
+    }
+
+    if (item.isDemo || !item.product) return true;
+    return item.product.toString() !== normalizedProductId;
+  });
+
   return this.save();
 };
 

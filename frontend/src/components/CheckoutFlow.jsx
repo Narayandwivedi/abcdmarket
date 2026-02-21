@@ -52,10 +52,14 @@ const CheckoutFlow = ({ onClose, onSuccess }) => {
         },
         items: items.map(item => ({
           productId: item._id || item.id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          isDemo: Boolean(item.isDemo) || String(item._id || item.id || '').startsWith('demo-'),
+          productName: item.name || item.seoTitle || 'Demo Product',
+          productBrand: item.brand || item.category || 'Demo',
+          productPrice: Number(item.price) || 0
         })),
         customerNotes,
-        paymentMethod
+        paymentMethod: 'cod'
       }
 
       // Add address information for logged-in user

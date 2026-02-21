@@ -45,10 +45,14 @@ const Checkout = () => {
       const orderData = {
         items: items.map(item => ({
           productId: item._id || item.id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          isDemo: Boolean(item.isDemo) || String(item._id || item.id || '').startsWith('demo-'),
+          productName: item.name || item.seoTitle || 'Demo Product',
+          productBrand: item.brand || item.category || 'Demo',
+          productPrice: Number(item.price) || 0
         })),
         customerNotes,
-        paymentMethod,
+        paymentMethod: 'cod',
         userId: user._id,
         addressId: selectedAddressId
       }
@@ -121,10 +125,10 @@ const Checkout = () => {
           {/* Main Content */}
           <div className="lg:col-span-8">
             {/* Step Navigation */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
               <div className="flex items-center justify-center space-x-8">
                 <div className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold ${
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-semibold ${
                     currentStep === 'address' ? 'bg-cyan-600' : 'bg-green-500'
                   }`}>
                     {currentStep === 'review' ? (
@@ -135,7 +139,7 @@ const Checkout = () => {
                       '1'
                     )}
                   </div>
-                  <span className={`ml-2 font-medium ${
+                  <span className={`ml-1.5 sm:ml-2 text-xs sm:text-base font-medium ${
                     currentStep === 'address' ? 'text-cyan-600' : 'text-gray-500'
                   }`}>
                     Select Address
@@ -147,12 +151,12 @@ const Checkout = () => {
                 }`} />
                 
                 <div className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold ${
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-semibold ${
                     currentStep === 'review' ? 'bg-cyan-600' : 'bg-gray-300'
                   }`}>
                     2
                   </div>
-                  <span className={`ml-2 font-medium ${
+                  <span className={`ml-1.5 sm:ml-2 text-xs sm:text-base font-medium ${
                     currentStep === 'review' ? 'text-cyan-600' : 'text-gray-500'
                   }`}>
                     Review & Payment
@@ -163,8 +167,8 @@ const Checkout = () => {
 
             {/* Step Content */}
             {currentStep === 'address' && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Select Delivery Address</h2>
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Select Delivery Address</h2>
                 <AddressManager 
                   onAddressSelect={setSelectedAddressId}
                   selectedAddressId={selectedAddressId}
@@ -175,7 +179,7 @@ const Checkout = () => {
                   <button
                     onClick={() => setCurrentStep('review')}
                     disabled={!selectedAddressId}
-                    className="px-8 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
+                    className="px-4 py-2 sm:px-8 sm:py-3 text-sm sm:text-base bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
                   >
                     Proceed to Payment
                   </button>
@@ -255,14 +259,14 @@ const Checkout = () => {
                 <div className="flex justify-between">
                   <button
                     onClick={() => setCurrentStep('address')}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium cursor-pointer"
+                    className="px-3 py-2 sm:px-6 sm:py-3 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium cursor-pointer"
                   >
                     Back to Address
                   </button>
                   <button
                     onClick={handlePlaceOrder}
                     disabled={isSubmitting}
-                    className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
+                    className="px-4 py-2 sm:px-8 sm:py-3 text-sm sm:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center">
@@ -315,7 +319,7 @@ const Checkout = () => {
                 <div className="mt-4">
                   <button
                     onClick={() => setCurrentStep('review')}
-                    className="w-full py-2 px-4 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-medium text-sm cursor-pointer"
+                    className="w-full py-1.5 px-3 sm:py-2 sm:px-4 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 font-medium text-xs sm:text-sm cursor-pointer"
                   >
                     Proceed to Payment
                   </button>

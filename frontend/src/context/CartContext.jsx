@@ -6,34 +6,35 @@ const CartContext = createContext()
 
 const cartReducer = (state, action) => {
   switch (action.type) {
-    case 'ADD_TO_CART':
-      // Handle both _id and id fields for compatibility
+    case 'ADD_TO_CART': {
       const productId = action.payload._id || action.payload.id
-      const existingItem = state.items.find(item => 
-        (item._id && item._id === productId) || (item.id && item.id === productId)
-      )
-      
+      const existingItem = state.items.find((item) => {
+        const itemId = item._id || item.id
+        return itemId === productId
+      })
+
       if (existingItem) {
         return {
           ...state,
-          items: state.items.map(item => {
+          items: state.items.map((item) => {
             const itemId = item._id || item.id
             return itemId === productId
               ? { ...item, quantity: item.quantity + 1 }
               : item
           })
         }
-      } else {
-        return {
-          ...state,
-          items: [...state.items, { ...action.payload, quantity: 1 }]
-        }
       }
+
+      return {
+        ...state,
+        items: [...state.items, { ...action.payload, quantity: 1 }]
+      }
+    }
 
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: state.items.filter(item => {
+        items: state.items.filter((item) => {
           const itemId = item._id || item.id
           return itemId !== action.payload
         })
@@ -42,12 +43,14 @@ const cartReducer = (state, action) => {
     case 'UPDATE_QUANTITY':
       return {
         ...state,
-        items: state.items.map(item => {
-          const itemId = item._id || item.id
-          return itemId === action.payload.id
-            ? { ...item, quantity: Math.max(0, action.payload.quantity) }
-            : item
-        }).filter(item => item.quantity > 0)
+        items: state.items
+          .map((item) => {
+            const itemId = item._id || item.id
+            return itemId === action.payload.id
+              ? { ...item, quantity: Math.max(0, action.payload.quantity) }
+              : item
+          })
+          .filter((item) => item.quantity > 0)
       }
 
     case 'CLEAR_CART':
@@ -92,6 +95,118 @@ const initialState = {
   error: null
 }
 
+const isDemoProductId = (value) => String(value || '').startsWith('demo-')
+const isDemoProduct = (product = {}) => Boolean(product.isDemo) || isDemoProductId(product._id || product.id)
+const isObjectIdLike = (value) => /^[a-f\d]{24}$/i.test(String(value || ''))
+
+const getCartItemId = (item = {}) => item._id || item.id
+
+const safeParseJson = (value, fallback = []) => {
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : fallback
+  } catch {
+    return fallback
+  }
+}
+
+const normalizeBackendCartItems = (backendCart = []) => {
+  if (!Array.isArray(backendCart)) return []
+
+  return backendCart
+    .map((item) => {
+      if (!item) return null
+
+      if (item.isDemo) {
+        const demoId = String(item.demoProductId || '').trim()
+        if (!demoId) return null
+
+        const demoImage = item.demoImageUrl || '/fruits.avif'
+
+        return {
+          id: demoId,
+          _id: demoId,
+          isDemo: true,
+          name: item.demoProductName || 'Demo Product',
+          brand: item.demoProductBrand || 'Demo',
+          category: 'Demo',
+          price: Number(item.demoProductPrice) || 0,
+          imageUrl: demoImage,
+          images: [demoImage],
+          quantity: Number(item.quantity) || 1,
+          addedAt: item.addedAt,
+        }
+      }
+
+      if (!item.product) return null
+
+      return {
+        ...item.product,
+        quantity: Number(item.quantity) || 1,
+        addedAt: item.addedAt,
+      }
+    })
+    .filter(Boolean)
+}
+
+const buildSyncItem = (item = {}) => {
+  const rawId = getCartItemId(item)
+  const productId = String(rawId || '').trim()
+  if (!productId) return null
+
+  const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1))
+
+  if (isDemoProduct(item)) {
+    const productPrice = Number(item.price)
+    if (!Number.isFinite(productPrice) || productPrice <= 0) return null
+
+    return {
+      productId,
+      quantity,
+      isDemo: true,
+      productName: item.name || item.seoTitle || 'Demo Product',
+      productBrand: item.brand || item.category || 'Demo',
+      productPrice,
+      imageUrl:
+        item.imageUrl ||
+        item.image ||
+        (Array.isArray(item.images) ? item.images[0] : '') ||
+        ''
+    }
+  }
+
+  if (!isObjectIdLike(productId)) return null
+
+  return {
+    productId,
+    quantity
+  }
+}
+
+const buildAddPayload = (product = {}) => {
+  const productId = String(product._id || product.id || '').trim()
+  if (!productId) return null
+
+  const payload = {
+    productId,
+    quantity: 1
+  }
+
+  if (isDemoProduct(product)) {
+    payload.isDemo = true
+    payload.productName = product.name || product.seoTitle || 'Demo Product'
+    payload.productBrand = product.brand || product.category || 'Demo'
+    payload.productPrice = Number(product.price) || 0
+    payload.imageUrl =
+      product.imageUrl ||
+      product.image ||
+      (Array.isArray(product.images) ? product.images[0] : '') ||
+      ''
+  }
+
+  return payload
+}
+
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState)
   const { user, isAuthenticated, BACKEND_URL } = useContext(AppContext)
@@ -99,24 +214,17 @@ export const CartProvider = ({ children }) => {
   // Load cart from localStorage or backend on mount/auth change
   useEffect(() => {
     const loadCart = async () => {
-      // console.log('Loading cart. Auth status:', isAuthenticated, 'User:', user)
-      
       if (isAuthenticated && user) {
-        // User is logged in - fetch from backend
         try {
           dispatch({ type: 'SET_LOADING', payload: true })
+
           const response = await axios.get(`${BACKEND_URL}/api/cart`, {
             withCredentials: true
           })
-          
+
           if (response.data.success) {
-            // Transform backend cart format to frontend format
-            const cartItems = response.data.cart.map(item => ({
-              ...item.product,
-              quantity: item.quantity,
-              addedAt: item.addedAt
-            }))
-            dispatch({ type: 'LOAD_CART', payload: cartItems })
+            const normalizedItems = normalizeBackendCartItems(response.data.cart)
+            dispatch({ type: 'LOAD_CART', payload: normalizedItems })
           }
         } catch (error) {
           console.error('Failed to load cart from backend:', error)
@@ -124,11 +232,14 @@ export const CartProvider = ({ children }) => {
         } finally {
           dispatch({ type: 'SET_LOADING', payload: false })
         }
-      } else if (isAuthenticated === false) {
-        // User is not logged in - load from localStorage
+
+        return
+      }
+
+      if (isAuthenticated === false) {
         const savedCart = localStorage.getItem('cart')
         if (savedCart) {
-          const parsedCart = JSON.parse(savedCart)
+          const parsedCart = safeParseJson(savedCart, [])
           dispatch({ type: 'LOAD_CART', payload: parsedCart })
         }
       }
@@ -144,36 +255,38 @@ export const CartProvider = ({ children }) => {
     }
   }, [state.items, isAuthenticated])
 
-  // Sync localStorage cart with backend when user logs in
+  // Sync guest local cart to backend on login (includes demo + real products)
   useEffect(() => {
     const syncCartOnLogin = async () => {
-      if (isAuthenticated && user && state.items.length === 0) {
-        const savedCart = localStorage.getItem('cart')
-        if (savedCart) {
-          const localCartItems = JSON.parse(savedCart)
-          if (localCartItems.length > 0) {
-            try {
-              const response = await axios.post(`${BACKEND_URL}/api/cart/sync`, {
-                localCart: localCartItems
-              }, {
-                withCredentials: true
-              })
-              
-              if (response.data.success) {
-                const cartItems = response.data.cart.map(item => ({
-                  ...item.product,
-                  quantity: item.quantity,
-                  addedAt: item.addedAt
-                }))
-                dispatch({ type: 'LOAD_CART', payload: cartItems })
-                // Clear localStorage after successful sync
-                localStorage.removeItem('cart')
-              }
-            } catch (error) {
-              console.error('Failed to sync cart:', error)
-            }
-          }
+      if (!(isAuthenticated && user)) return
+
+      const savedCart = localStorage.getItem('cart')
+      if (!savedCart) return
+
+      const localCartItems = safeParseJson(savedCart, [])
+      const syncableItems = localCartItems
+        .map(buildSyncItem)
+        .filter(Boolean)
+
+      if (syncableItems.length === 0) {
+        localStorage.removeItem('cart')
+        return
+      }
+
+      try {
+        const response = await axios.post(
+          `${BACKEND_URL}/api/cart/sync`,
+          { localCart: syncableItems },
+          { withCredentials: true }
+        )
+
+        if (response.data.success) {
+          const normalizedItems = normalizeBackendCartItems(response.data.cart)
+          dispatch({ type: 'LOAD_CART', payload: normalizedItems })
+          localStorage.removeItem('cart')
         }
+      } catch (error) {
+        console.error('Failed to sync cart:', error)
       }
     }
 
@@ -182,30 +295,26 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product) => {
     const productId = product._id || product.id
-    
+
     if (!productId) {
       console.error('Product missing id field:', product)
       return
     }
 
     if (isAuthenticated && user) {
-      // User is logged in - save to backend
       try {
         dispatch({ type: 'SET_LOADING', payload: true })
-        const response = await axios.post(`${BACKEND_URL}/api/cart/add`, {
-          productId,
-          quantity: 1
-        }, {
+
+        const payload = buildAddPayload(product)
+        if (!payload) throw new Error('Invalid product payload')
+
+        const response = await axios.post(`${BACKEND_URL}/api/cart/add`, payload, {
           withCredentials: true
         })
-        
+
         if (response.data.success) {
-          const cartItems = response.data.cart.map(item => ({
-            ...item.product,
-            quantity: item.quantity,
-            addedAt: item.addedAt
-          }))
-          dispatch({ type: 'LOAD_CART', payload: cartItems })
+          const normalizedItems = normalizeBackendCartItems(response.data.cart)
+          dispatch({ type: 'LOAD_CART', payload: normalizedItems })
         }
       } catch (error) {
         console.error('Failed to add to cart:', error)
@@ -213,28 +322,26 @@ export const CartProvider = ({ children }) => {
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false })
       }
-    } else {
-      // Guest user - save to localStorage via reducer
-      dispatch({ type: 'ADD_TO_CART', payload: product })
+
+      return
     }
+
+    // Guest user - save to localStorage via reducer
+    dispatch({ type: 'ADD_TO_CART', payload: product })
   }
 
   const removeFromCart = async (productId) => {
     if (isAuthenticated && user) {
-      // User is logged in - remove from backend
       try {
         dispatch({ type: 'SET_LOADING', payload: true })
+
         const response = await axios.delete(`${BACKEND_URL}/api/cart/remove/${productId}`, {
           withCredentials: true
         })
-        
+
         if (response.data.success) {
-          const cartItems = response.data.cart.map(item => ({
-            ...item.product,
-            quantity: item.quantity,
-            addedAt: item.addedAt
-          }))
-          dispatch({ type: 'LOAD_CART', payload: cartItems })
+          const normalizedItems = normalizeBackendCartItems(response.data.cart)
+          dispatch({ type: 'LOAD_CART', payload: normalizedItems })
         }
       } catch (error) {
         console.error('Failed to remove from cart:', error)
@@ -242,30 +349,28 @@ export const CartProvider = ({ children }) => {
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false })
       }
-    } else {
-      // Guest user - remove via reducer
-      dispatch({ type: 'REMOVE_FROM_CART', payload: productId })
+
+      return
     }
+
+    // Guest user - remove via reducer
+    dispatch({ type: 'REMOVE_FROM_CART', payload: productId })
   }
 
   const updateQuantity = async (productId, quantity) => {
     if (isAuthenticated && user) {
-      // User is logged in - update in backend
       try {
         dispatch({ type: 'SET_LOADING', payload: true })
+
         const response = await axios.put(`${BACKEND_URL}/api/cart/update/${productId}`, {
           quantity
         }, {
           withCredentials: true
         })
-        
+
         if (response.data.success) {
-          const cartItems = response.data.cart.map(item => ({
-            ...item.product,
-            quantity: item.quantity,
-            addedAt: item.addedAt
-          }))
-          dispatch({ type: 'LOAD_CART', payload: cartItems })
+          const normalizedItems = normalizeBackendCartItems(response.data.cart)
+          dispatch({ type: 'LOAD_CART', payload: normalizedItems })
         }
       } catch (error) {
         console.error('Failed to update cart quantity:', error)
@@ -273,21 +378,22 @@ export const CartProvider = ({ children }) => {
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false })
       }
-    } else {
-      // Guest user - update via reducer
-      dispatch({ type: 'UPDATE_QUANTITY', payload: { id: productId, quantity } })
+
+      return
     }
+
+    // Guest user - update via reducer
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id: productId, quantity } })
   }
 
   const clearCart = async () => {
     if (isAuthenticated && user) {
-      // User is logged in - clear from backend
       try {
         dispatch({ type: 'SET_LOADING', payload: true })
         const response = await axios.delete(`${BACKEND_URL}/api/cart/clear`, {
           withCredentials: true
         })
-        
+
         if (response.data.success) {
           dispatch({ type: 'CLEAR_CART' })
         }
@@ -297,10 +403,12 @@ export const CartProvider = ({ children }) => {
       } finally {
         dispatch({ type: 'SET_LOADING', payload: false })
       }
-    } else {
-      // Guest user - clear via reducer
-      dispatch({ type: 'CLEAR_CART' })
+
+      return
     }
+
+    // Guest user - clear via reducer
+    dispatch({ type: 'CLEAR_CART' })
   }
 
   const getTotalPrice = () => {

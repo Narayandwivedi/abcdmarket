@@ -1,10 +1,21 @@
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
+  isDemo: {
+    type: Boolean,
+    default: false
+  },
+  demoProductId: {
+    type: String,
+    trim: true,
+    default: null
+  },
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product',
-    required: [true, 'Product ID is required']
+    required: function() {
+      return !this.isDemo;
+    }
   },
   productName: {
     type: String,
