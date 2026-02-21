@@ -33,7 +33,7 @@ const DashboardPage = ({ sellerProfile, products, onGoToProducts }) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Products</p>
           <p className="mt-2 text-2xl font-black text-slate-900">{summary.totalProducts}</p>

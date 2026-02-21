@@ -16,9 +16,21 @@ const productSchema = new mongoose.Schema({
   },
   
   // Product Classification
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+    index: true
+  },
   category: {
     type: String,
     required: true,
+  },
+  subCategoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SubCategory',
+    default: null,
+    index: true
   },
   // Vendor / Seller Reference
   sellerId: {
@@ -28,7 +40,6 @@ const productSchema = new mongoose.Schema({
   },
   subCategory: {
     type: String,
-    required: true,
   },
 
   // Brand and Model
@@ -116,39 +127,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     lowercase: true
   }],
-  
-  // Warranty Information
-  warranty: {
-    type: Number, // warranty period in years
-    min: 0,
-    default: 1
-  },
-  
-  // Service Options (Amazon-style)
-  serviceOptions: {
-    freeDelivery: {
-      type: Boolean,
-      default: true
-    },
-    replacementDays: {
-      type: Number, // days for replacement (e.g., 7, 10, 15, 30)
-      default: 7,
-      min: 0
-    },
-    cashOnDelivery: {
-      type: Boolean,
-      default: true
-    },
-    warrantyService: {
-      type: Boolean,
-      default: true
-    },
-    freeInstallation: {
-      type: Boolean,
-      default: false
-    }
-  },
-  
+
   // Status
   isActive: {
     type: Boolean,
@@ -167,23 +146,19 @@ const productSchema = new mongoose.Schema({
   priceRange: {
     type: String,
     enum: ['budget', 'mid-range', 'premium', 'high-end'],
-    index: true
   },
   availability: {
     type: String,
     enum: ['in-stock', 'out-of-stock', 'pre-order'],
     default: 'in-stock',
-    index: true
   }
   
 }, {
   timestamps: true
 });
 
-// Improve listing performance for category and subcategory pages.
-productSchema.index({ isActive: 1, category: 1, createdAt: -1 });
-productSchema.index({ isActive: 1, category: 1, subCategory: 1, createdAt: -1 });
-
+productSchema.index({ isActive: 1, categoryId: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, categoryId: 1, subCategoryId: 1, createdAt: -1 });
 
 
 module.exports = mongoose.model('Product', productSchema);

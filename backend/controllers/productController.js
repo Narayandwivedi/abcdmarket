@@ -96,6 +96,92 @@ const getSubCategoryBySlug = async ({ subCategorySlug, categoryId }) => {
   return subCategory;
 };
 
+const isValidObjectId = (value = '') =>
+  mongoose.Types.ObjectId.isValid(normalizeText(value));
+
+const resolveProductCategoryFields = async ({
+  categoryId,
+  category,
+  subCategoryId,
+  subCategory,
+  requireCategory = true
+}) => {
+  const normalizedCategoryId = normalizeText(categoryId);
+  const normalizedCategoryName = normalizeText(category);
+  const normalizedSubCategoryId = normalizeText(subCategoryId);
+  const normalizedSubCategoryName = normalizeText(subCategory);
+
+  if (normalizedCategoryId && !isValidObjectId(normalizedCategoryId)) {
+    throw new Error('Invalid category id');
+  }
+
+  if (normalizedSubCategoryId && !isValidObjectId(normalizedSubCategoryId)) {
+    throw new Error('Invalid sub category id');
+  }
+
+  let resolvedCategory = null;
+  if (normalizedCategoryId) {
+    resolvedCategory = await Category.findById(normalizedCategoryId).select('_id name');
+    if (!resolvedCategory) {
+      throw new Error('Category not found');
+    }
+  } else if (normalizedCategoryName) {
+    resolvedCategory = await Category.findOne({
+      name: new RegExp(`^${escapeRegex(normalizedCategoryName)}$`, 'i')
+    }).select('_id name');
+  }
+
+  let resolvedSubCategory = null;
+  const hasSubCategoryInput = Boolean(normalizedSubCategoryId || normalizedSubCategoryName);
+
+  if (hasSubCategoryInput) {
+    if (normalizedSubCategoryId) {
+      resolvedSubCategory = await SubCategory.findById(normalizedSubCategoryId).select(
+        '_id name category'
+      );
+      if (!resolvedSubCategory) {
+        throw new Error('Sub category not found');
+      }
+    } else if (normalizedSubCategoryName) {
+      const subCategoryQuery = {
+        name: new RegExp(`^${escapeRegex(normalizedSubCategoryName)}$`, 'i')
+      };
+
+      if (resolvedCategory?._id) {
+        subCategoryQuery.category = resolvedCategory._id;
+      }
+
+      resolvedSubCategory = await SubCategory.findOne(subCategoryQuery).select(
+        '_id name category'
+      );
+    }
+
+    if (resolvedSubCategory) {
+      if (resolvedCategory?._id) {
+        if (String(resolvedSubCategory.category) !== String(resolvedCategory._id)) {
+          throw new Error('Sub category does not belong to selected category');
+        }
+      } else {
+        resolvedCategory = await Category.findById(resolvedSubCategory.category).select('_id name');
+        if (!resolvedCategory) {
+          throw new Error('Category not found');
+        }
+      }
+    }
+  }
+
+  if (requireCategory && !resolvedCategory) {
+    throw new Error('Valid category is required');
+  }
+
+  return {
+    categoryId: resolvedCategory?._id || null,
+    category: resolvedCategory?.name || normalizedCategoryName,
+    subCategoryId: resolvedSubCategory?._id || null,
+    subCategory: resolvedSubCategory?.name || normalizedSubCategoryName
+  };
+};
+
 const addProduct = async (req, res) => {
   try {
     const authenticatedSellerId = requireAuthenticatedSeller(req, res);
@@ -106,7 +192,9 @@ const addProduct = async (req, res) => {
       seoTitle,
       slug,
       description,
+      categoryId,
       category,
+      subCategoryId,
       subCategory,
       brand,
       model,
@@ -135,14 +223,24 @@ const addProduct = async (req, res) => {
       });
     }
 
+    const resolvedClassification = await resolveProductCategoryFields({
+      categoryId,
+      category,
+      subCategoryId,
+      subCategory,
+      requireCategory: true
+    });
+
     console.log('Creating product with seoTitle:', seoTitle); // Debug log
 
     const product = new Product({
       seoTitle,
       slug,
       description,
-      category,
-      subCategory,
+      categoryId: resolvedClassification.categoryId,
+      category: resolvedClassification.category,
+      subCategoryId: resolvedClassification.subCategoryId,
+      subCategory: resolvedClassification.subCategory || undefined,
       brand,
       model,
       sku,
@@ -321,18 +419,51 @@ const editProduct = async (req, res) => {
     delete updateData.sellerInfo;
     delete updateData.vendor;
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
+    const existingProduct = await Product.findById(id).select(
+      '_id categoryId category subCategoryId subCategory'
     );
 
-    if (!updatedProduct) {
+    if (!existingProduct) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
       });
     }
+
+    const shouldResolveClassification =
+      Object.prototype.hasOwnProperty.call(updateData, 'categoryId') ||
+      Object.prototype.hasOwnProperty.call(updateData, 'category') ||
+      Object.prototype.hasOwnProperty.call(updateData, 'subCategoryId') ||
+      Object.prototype.hasOwnProperty.call(updateData, 'subCategory');
+
+    if (shouldResolveClassification) {
+      const resolvedClassification = await resolveProductCategoryFields({
+        categoryId: Object.prototype.hasOwnProperty.call(updateData, 'categoryId')
+          ? updateData.categoryId
+          : existingProduct.categoryId,
+        category: Object.prototype.hasOwnProperty.call(updateData, 'category')
+          ? updateData.category
+          : existingProduct.category,
+        subCategoryId: Object.prototype.hasOwnProperty.call(updateData, 'subCategoryId')
+          ? updateData.subCategoryId
+          : existingProduct.subCategoryId,
+        subCategory: Object.prototype.hasOwnProperty.call(updateData, 'subCategory')
+          ? updateData.subCategory
+          : existingProduct.subCategory,
+        requireCategory: true
+      });
+
+      updateData.categoryId = resolvedClassification.categoryId;
+      updateData.category = resolvedClassification.category;
+      updateData.subCategoryId = resolvedClassification.subCategoryId;
+      updateData.subCategory = resolvedClassification.subCategory || '';
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json({
       success: true,
@@ -512,9 +643,10 @@ const getProductsByCategorySlug = async (req, res) => {
       });
     }
 
+    const categoryNameMatcher = new RegExp(`^${escapeRegex(category.name)}$`, 'i');
     const query = {
       isActive: true,
-      category: new RegExp(`^${escapeRegex(category.name)}$`, 'i')
+      $or: [{ categoryId: category._id }, { category: categoryNameMatcher }]
     };
 
     if (brand && brand !== 'all') {
@@ -612,10 +744,19 @@ const getProductsByCategoryAndSubCategorySlug = async (req, res) => {
       });
     }
 
+    const categoryNameMatcher = new RegExp(`^${escapeRegex(category.name)}$`, 'i');
+    const subCategoryNameMatcher = new RegExp(`^${escapeRegex(subCategory.name)}$`, 'i');
     const query = {
       isActive: true,
-      category: new RegExp(`^${escapeRegex(category.name)}$`, 'i'),
-      subCategory: new RegExp(`^${escapeRegex(subCategory.name)}$`, 'i')
+      $and: [
+        { $or: [{ categoryId: category._id }, { category: categoryNameMatcher }] },
+        {
+          $or: [
+            { subCategoryId: subCategory._id },
+            { subCategory: subCategoryNameMatcher }
+          ]
+        }
+      ]
     };
 
     if (brand && brand !== 'all') {

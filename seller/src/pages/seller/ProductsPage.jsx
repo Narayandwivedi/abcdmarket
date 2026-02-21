@@ -222,11 +222,10 @@ const ProductsPage = ({
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Sub Category *</label>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">Sub Category</label>
                   <select
                     value={productForm.subCategory}
                     onChange={(event) => onProductFieldChange('subCategory', event.target.value)}
-                    required
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
                   >
                     <option value="">Select Sub Category</option>

@@ -38,6 +38,7 @@ const getInitialProductData = (category = '', subCategory = '') => ({
 const Login = () => {
   const [activeTab, setActiveTab] = useState('login')
   const [activeSection, setActiveSection] = useState('dashboard')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const [sellerProfile, setSellerProfile] = useState(null)
   const [loginData, setLoginData] = useState(initialLoginData)
@@ -257,6 +258,10 @@ const Login = () => {
   }, [])
 
   useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [activeSection])
+
+  useEffect(() => {
     if (!sellerProfile || activeSection !== 'products') return
     loadCategoryTaxonomy({ showError: true })
   }, [sellerProfile, activeSection])
@@ -369,7 +374,7 @@ const Login = () => {
       stockQuantity: Number(productForm.stockQuantity || 0),
     }
 
-    if (!payload.seoTitle || !payload.description || !payload.category || !payload.subCategory || !payload.brand) {
+    if (!payload.seoTitle || !payload.description || !payload.category || !payload.brand) {
       setError('Please fill all required product fields')
       return
     }
@@ -615,27 +620,63 @@ const Login = () => {
         </button>
       </aside>
 
-      <main className="space-y-4 px-4 py-6 sm:px-6 lg:ml-64 lg:px-8 lg:py-8">
-        <div className="rounded-2xl border border-white/60 bg-white/90 p-4 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-md lg:hidden">
-          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Seller Panel</p>
-          <h2 className="mt-1 text-lg font-black text-slate-900">ABCDMARKET</h2>
-          <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="sticky top-0 z-40 border-b border-white/60 bg-white/95 px-4 py-3 backdrop-blur-md lg:hidden">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Seller Panel</p>
+            <h2 className="mt-1 text-lg font-black text-slate-900">ABCDMARKET</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle seller menu"
+            aria-expanded={isMobileMenuOpen}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-700 transition hover:bg-slate-100"
+          >
+            {isMobileMenuOpen ? (
+              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm1 4a1 1 0 100 2h12a1 1 0 100-2H4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {isMobileMenuOpen && (
+          <div className="mt-3 grid grid-cols-1 gap-2">
             {SELLER_SECTIONS.map((section) => (
               <button
                 key={section.key}
                 type="button"
-                onClick={() => setActiveSection(section.key)}
-                className={`rounded-lg px-2 py-2 text-xs font-semibold transition ${
+                onClick={() => {
+                  setActiveSection(section.key)
+                  setIsMobileMenuOpen(false)
+                }}
+                className={`rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
                   activeSection === section.key
                     ? 'bg-gradient-to-r from-orange-500 to-cyan-600 text-white'
-                    : 'bg-slate-100 text-slate-700'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {section.label}
               </button>
             ))}
           </div>
-        </div>
+        )}
+      </div>
+
+      <main className="space-y-4 px-4 pb-6 pt-4 sm:px-6 lg:ml-64 lg:px-8 lg:py-8">
 
         {renderFeedback()}
         {activeSection === 'dashboard' && (
