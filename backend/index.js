@@ -14,6 +14,7 @@ const addressRoutes = require('./routes/addressRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const heroRoutes = require('./routes/heroRoutes');
 const shopCategoryRoutes = require('./routes/shopCategoryRoutes');
+const subCategoryRoutes = require('./routes/subCategoryRoutes');
 const sellerAuthRoutes = require('./routes/sellerAuthRoutes');
 
 const app = express();
@@ -43,6 +44,7 @@ app.use('/api/addresses', addressRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/heroes', heroRoutes);
 app.use('/api/shop-categories', shopCategoryRoutes);
+app.use('/api/sub-categories', subCategoryRoutes);
 app.use('/api/seller-auth', sellerAuthRoutes);
 
 // Root route

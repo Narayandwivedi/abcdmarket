@@ -333,18 +333,12 @@ const toCategorySlug = (value = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const buildCategoryPageDestination = (name = "", query = "") => {
-  const normalizedName = String(name || query || "").trim();
-  const normalizedQuery = String(query || name || "").trim();
-  const slug = toCategorySlug(normalizedName || normalizedQuery);
+const buildCategoryPageDestination = (name = "", slugValue = "") => {
+  const normalizedName = String(name || "").trim();
+  const slug = toCategorySlug(slugValue || normalizedName);
 
   if (!slug) return "/";
-
-  const params = new URLSearchParams();
-  if (normalizedName) params.set("name", normalizedName);
-  if (normalizedQuery) params.set("query", normalizedQuery);
-
-  return `/category/${slug}?${params.toString()}`;
+  return `/category/${slug}`;
 };
 
 const getCategoryDestination = (category) => {
@@ -352,10 +346,10 @@ const getCategoryDestination = (category) => {
   if (redirectUrl) {
     if (/^https?:\/\//i.test(redirectUrl)) return redirectUrl;
     if (redirectUrl.startsWith("/")) return redirectUrl;
-    return buildCategoryPageDestination(category.name || redirectUrl, redirectUrl);
+    return buildCategoryPageDestination(category.name || redirectUrl, category.slug || redirectUrl);
   }
 
-  return buildCategoryPageDestination(category.name, category.query);
+  return buildCategoryPageDestination(category.name, category.slug || category.query || category.name);
 };
 
 const ShopByCategorySection = () => {
@@ -379,6 +373,7 @@ const ShopByCategorySection = () => {
         const mappedCategories = categoryList.map((category, index) => ({
           _id: category._id || `shop-category-${index}`,
           name: category.name || `Category ${index + 1}`,
+          slug: category.slug || toCategorySlug(category.name || ""),
           query: category.name || "",
           redirectUrl: category.redirectUrl || "",
           image: resolveCategoryImageUrl(BACKEND_URL, category.imageUrl),
@@ -406,31 +401,11 @@ const ShopByCategorySection = () => {
   const displayCategories = useMemo(() => {
     const sourceCategories =
       backendCategories.length > 0 ? backendCategories : demoCategories;
-    const categoriesWithImage = sourceCategories.filter((category) =>
-      Boolean(category.image),
-    );
-    const requiredCategories = demoCategories.filter((category) =>
-      String(category._id || "").startsWith("static-"),
-    );
-
-    const mergedCategories = requiredCategories.reduce((updatedCategories, requiredCategory) => {
-      const requiredName = String(requiredCategory.name || "")
-        .trim()
-        .toLowerCase();
-      const alreadyExists = updatedCategories.some(
-        (category) =>
-          String(category.name || "").trim().toLowerCase() === requiredName,
-      );
-
-      return alreadyExists
-        ? updatedCategories
-        : [...updatedCategories, requiredCategory];
-    }, categoriesWithImage);
 
     const uniqueCategories = [];
     const seenKeys = new Set();
 
-    mergedCategories.forEach((category) => {
+    sourceCategories.forEach((category) => {
       const uniqueKey = getCategoryUniqueKey(category);
       if (!uniqueKey || seenKeys.has(uniqueKey)) return;
       seenKeys.add(uniqueKey);

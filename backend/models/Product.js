@@ -180,6 +180,9 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Improve listing performance for category and subcategory pages.
+productSchema.index({ isActive: 1, category: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, category: 1, subCategory: 1, createdAt: -1 });
 
 
 

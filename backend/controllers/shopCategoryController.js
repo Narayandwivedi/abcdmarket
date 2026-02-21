@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const ShopCategory = require('../models/ShopCategory');
+const Category = require('../models/category');
+const { toSlug, generateUniqueSlug } = require('../utils/slug');
 
 const toNumberOrDefault = (value, fallback) => {
   const parsed = Number(value);
@@ -11,6 +12,10 @@ const normalizeCategoryPayload = (payload = {}) => {
 
   if (payload.name !== undefined) {
     normalized.name = String(payload.name).trim();
+  }
+
+  if (payload.slug !== undefined) {
+    normalized.slug = toSlug(payload.slug);
   }
 
   if (payload.imageUrl !== undefined) {
@@ -32,18 +37,28 @@ const normalizeCategoryPayload = (payload = {}) => {
   return normalized;
 };
 
+const withResolvedSlug = (category) => {
+  const plainCategory = category?.toObject ? category.toObject() : category;
+  return {
+    ...plainCategory,
+    slug: plainCategory?.slug || toSlug(plainCategory?.name || '')
+  };
+};
+
 const getPublicShopCategories = async (req, res) => {
   try {
     const limit = Math.max(1, Math.min(100, toNumberOrDefault(req.query.limit, 30)));
 
-    const categories = await ShopCategory.find({ isActive: true })
+    const categories = await Category.find({ isActive: true })
       .sort({ priority: 1, createdAt: 1 })
       .limit(limit);
 
+    const normalizedCategories = categories.map(withResolvedSlug);
+
     res.status(200).json({
       success: true,
-      count: categories.length,
-      data: categories
+      count: normalizedCategories.length,
+      data: normalizedCategories
     });
   } catch (error) {
     res.status(500).json({
@@ -55,12 +70,14 @@ const getPublicShopCategories = async (req, res) => {
 
 const getAllShopCategories = async (req, res) => {
   try {
-    const categories = await ShopCategory.find().sort({ priority: 1, createdAt: 1 });
+    const categories = await Category.find().sort({ priority: 1, createdAt: 1 });
+
+    const normalizedCategories = categories.map(withResolvedSlug);
 
     res.status(200).json({
       success: true,
-      count: categories.length,
-      data: categories
+      count: normalizedCategories.length,
+      data: normalizedCategories
     });
   } catch (error) {
     res.status(500).json({
@@ -88,12 +105,18 @@ const createShopCategory = async (req, res) => {
       });
     }
 
-    const category = await ShopCategory.create(payload);
+    payload.slug = await generateUniqueSlug({
+      Model: Category,
+      source: payload.name,
+      baseSlug: payload.slug
+    });
+
+    const category = await Category.create(payload);
 
     res.status(201).json({
       success: true,
       message: 'Shop category created successfully',
-      data: category
+      data: withResolvedSlug(category)
     });
   } catch (error) {
     res.status(400).json({
@@ -115,8 +138,25 @@ const updateShopCategory = async (req, res) => {
     }
 
     const payload = normalizeCategoryPayload(req.body);
+    const existingCategory = await Category.findById(id).select('_id name slug');
 
-    const category = await ShopCategory.findByIdAndUpdate(id, payload, {
+    if (!existingCategory) {
+      return res.status(404).json({
+        success: false,
+        message: 'Shop category not found'
+      });
+    }
+
+    if (payload.name !== undefined || payload.slug !== undefined) {
+      payload.slug = await generateUniqueSlug({
+        Model: Category,
+        source: payload.name || existingCategory.name,
+        baseSlug: payload.slug || payload.name || existingCategory.slug || existingCategory.name,
+        excludeId: existingCategory._id
+      });
+    }
+
+    const category = await Category.findByIdAndUpdate(id, payload, {
       new: true,
       runValidators: true
     });
@@ -131,7 +171,7 @@ const updateShopCategory = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Shop category updated successfully',
-      data: category
+      data: withResolvedSlug(category)
     });
   } catch (error) {
     res.status(400).json({
@@ -152,7 +192,7 @@ const deleteShopCategory = async (req, res) => {
       });
     }
 
-    const category = await ShopCategory.findByIdAndDelete(id);
+    const category = await Category.findByIdAndDelete(id);
 
     if (!category) {
       return res.status(404).json({
@@ -203,7 +243,7 @@ const reorderShopCategories = async (req, res) => {
       });
     }
 
-    const categories = await ShopCategory.find({ _id: { $in: uniqueIds } }).select('_id');
+    const categories = await Category.find({ _id: { $in: uniqueIds } }).select('_id');
     if (categories.length !== uniqueIds.length) {
       return res.status(404).json({
         success: false,
@@ -218,14 +258,16 @@ const reorderShopCategories = async (req, res) => {
       }
     }));
 
-    await ShopCategory.bulkWrite(operations);
+    await Category.bulkWrite(operations);
 
-    const updatedCategories = await ShopCategory.find().sort({ priority: 1, createdAt: 1 });
+    const updatedCategories = await Category.find().sort({ priority: 1, createdAt: 1 });
+
+    const normalizedCategories = updatedCategories.map(withResolvedSlug);
 
     res.status(200).json({
       success: true,
       message: 'Shop category priority order updated successfully',
-      data: updatedCategories
+      data: normalizedCategories
     });
   } catch (error) {
     res.status(400).json({

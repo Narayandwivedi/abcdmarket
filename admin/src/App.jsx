@@ -11,6 +11,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import HeroManagement from './pages/HeroManagement';
 import ShopCategoryManagement from './pages/ShopCategoryManagement';
+import SubCategoryManagement from './pages/SubCategoryManagement';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/hero-management" element={<HeroManagement />} />
             <Route path="/shop-category-management" element={<ShopCategoryManagement />} />
+            <Route path="/sub-category-management" element={<SubCategoryManagement />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </Layout>

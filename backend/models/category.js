@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 
-const shopCategorySchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
       trim: true
+    },
+    slug: {
+      type: String,
+      trim: true,
+      lowercase: true
     },
     imageUrl: {
       type: String,
@@ -32,6 +37,7 @@ const shopCategorySchema = new mongoose.Schema(
   }
 );
 
-shopCategorySchema.index({ isActive: 1, priority: 1, createdAt: 1 });
+categorySchema.index({ isActive: 1, priority: 1, createdAt: 1 });
+categorySchema.index({ slug: 1 }, { unique: true, sparse: true });
 
-module.exports = mongoose.model('ShopCategory', shopCategorySchema);
+module.exports = mongoose.model('Category', categorySchema);

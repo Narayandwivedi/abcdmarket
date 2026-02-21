@@ -1,5 +1,9 @@
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
+const Category = require('../models/category');
+const SubCategory = require('../models/subCategory');
 const jwt = require('jsonwebtoken');
+const { escapeRegex, toSlug } = require('../utils/slug');
 
 const normalizeText = (value = '') => String(value).trim();
 
@@ -22,8 +26,81 @@ const getSellerIdFromCookie = (req) => {
   }
 };
 
+const requireAuthenticatedSeller = (req, res) => {
+  const sellerId = getSellerIdFromCookie(req);
+  if (!sellerId || !mongoose.Types.ObjectId.isValid(sellerId)) {
+    res.status(401).json({
+      success: false,
+      message: 'Seller authentication required'
+    });
+    return null;
+  }
+  return sellerId;
+};
+
+const parsePositiveNumber = (value, fallback, max = Number.MAX_SAFE_INTEGER) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, max);
+};
+
+const buildSortObject = (sort = 'relevance') => {
+  switch (sort) {
+    case 'price_asc':
+      return { price: 1 };
+    case 'price_desc':
+      return { price: -1 };
+    case 'newest':
+      return { createdAt: -1 };
+    case 'name':
+      return { seoTitle: 1 };
+    case 'relevance':
+    default:
+      return { createdAt: -1 };
+  }
+};
+
+const getCategoryBySlug = async (categorySlug) => {
+  const normalizedSlug = toSlug(decodeURIComponent(String(categorySlug || '')));
+  if (!normalizedSlug) return null;
+
+  let category = await Category.findOne({ slug: normalizedSlug, isActive: true });
+  if (category) return category;
+
+  const categoryCandidates = await Category.find({ isActive: true }).select('_id name slug isActive');
+  category =
+    categoryCandidates.find((item) => toSlug(item.slug || item.name) === normalizedSlug) || null;
+
+  return category;
+};
+
+const getSubCategoryBySlug = async ({ subCategorySlug, categoryId }) => {
+  const normalizedSlug = toSlug(decodeURIComponent(String(subCategorySlug || '')));
+  if (!normalizedSlug) return null;
+
+  let subCategory = await SubCategory.findOne({
+    slug: normalizedSlug,
+    category: categoryId,
+    isActive: true
+  });
+  if (subCategory) return subCategory;
+
+  const subCategoryCandidates = await SubCategory.find({
+    category: categoryId,
+    isActive: true
+  }).select('_id name slug category isActive');
+
+  subCategory =
+    subCategoryCandidates.find((item) => toSlug(item.slug || item.name) === normalizedSlug) || null;
+
+  return subCategory;
+};
+
 const addProduct = async (req, res) => {
   try {
+    const authenticatedSellerId = requireAuthenticatedSeller(req, res);
+    if (!authenticatedSellerId) return;
+
     console.log('Received request body:', req.body); // Debug log
     const {
       seoTitle,
@@ -47,11 +124,7 @@ const addProduct = async (req, res) => {
       keywords,
       warranty,
       isActive,
-      isFeatured,
-      sellerId,
-      seller,
-      sellerInfo,
-      vendor
+      isFeatured
     } = req.body;
 
     // Validate required fields
@@ -63,14 +136,6 @@ const addProduct = async (req, res) => {
     }
 
     console.log('Creating product with seoTitle:', seoTitle); // Debug log
-
-    const requestSellerId =
-      extractSellerId(sellerId) ||
-      extractSellerId(seller) ||
-      extractSellerId(sellerInfo) ||
-      extractSellerId(vendor);
-    const cookieSellerId = getSellerIdFromCookie(req);
-    const resolvedSellerId = requestSellerId || cookieSellerId || undefined;
 
     const product = new Product({
       seoTitle,
@@ -95,7 +160,7 @@ const addProduct = async (req, res) => {
       warranty: warranty !== undefined ? warranty : 1,
       isActive: isActive !== undefined ? isActive : true,
       isFeatured: isFeatured !== undefined ? isFeatured : false,
-      ...(resolvedSellerId ? { sellerId: resolvedSellerId } : {})
+      sellerId: authenticatedSellerId
     });
 
     const savedProduct = await product.save();
@@ -106,6 +171,131 @@ const addProduct = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const getMyProducts = async (req, res) => {
+  try {
+    const sellerId = requireAuthenticatedSeller(req, res);
+    if (!sellerId) return;
+
+    const limit = Number(req.query.limit) > 0 ? Number(req.query.limit) : 50;
+    const page = Number(req.query.page) > 0 ? Number(req.query.page) : 1;
+    const skip = (page - 1) * limit;
+
+    const query = { sellerId };
+    const [products, total] = await Promise.all([
+      Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.countDocuments(query)
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      data: products
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const updateMyProductPrice = async (req, res) => {
+  try {
+    const sellerId = requireAuthenticatedSeller(req, res);
+    if (!sellerId) return;
+
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product id'
+      });
+    }
+
+    const { price, originalPrice } = req.body;
+    if (price === undefined || price === null || Number(price) < 0 || Number.isNaN(Number(price))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid price is required'
+      });
+    }
+
+    const updateData = { price: Number(price) };
+    if (originalPrice !== undefined) {
+      if (originalPrice === '' || originalPrice === null) {
+        updateData.originalPrice = undefined;
+      } else if (Number(originalPrice) < 0 || Number.isNaN(Number(originalPrice))) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid original price'
+        });
+      } else {
+        updateData.originalPrice = Number(originalPrice);
+      }
+    }
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: id, sellerId },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found for this seller'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product price updated successfully',
+      data: updatedProduct
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const deleteMyProduct = async (req, res) => {
+  try {
+    const sellerId = requireAuthenticatedSeller(req, res);
+    if (!sellerId) return;
+
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product id'
+      });
+    }
+
+    const deletedProduct = await Product.findOneAndDelete({ _id: id, sellerId });
+    if (!deletedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found for this seller'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error) {
+    return res.status(500).json({
       success: false,
       message: error.message
     });
@@ -296,6 +486,198 @@ const getProductsBySubCategory = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const getProductsByCategorySlug = async (req, res) => {
+  try {
+    const { categorySlug } = req.params;
+    const {
+      brand,
+      minPrice,
+      maxPrice,
+      sort = 'relevance',
+      limit = 20,
+      page = 1
+    } = req.query;
+
+    const category = await getCategoryBySlug(categorySlug);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    const query = {
+      isActive: true,
+      category: new RegExp(`^${escapeRegex(category.name)}$`, 'i')
+    };
+
+    if (brand && brand !== 'all') {
+      query.brand = new RegExp(escapeRegex(brand), 'i');
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    const pageNumber = parsePositiveNumber(page, 1);
+    const limitNumber = parsePositiveNumber(limit, 16, 100);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .sort(buildSortObject(sort))
+        .limit(limitNumber)
+        .skip(skip),
+      Product.countDocuments(query)
+    ]);
+
+    const facets = {};
+    if (total > 0) {
+      const facetResults = await Product.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: null,
+            brands: { $addToSet: '$brand' },
+            subCategories: { $addToSet: '$subCategory' }
+          }
+        }
+      ]);
+
+      if (facetResults.length > 0) {
+        facets.brands = facetResults[0].brands.filter(Boolean).sort();
+        facets.subCategories = facetResults[0].subCategories.filter(Boolean).sort();
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      category: {
+        _id: category._id,
+        name: category.name,
+        slug: category.slug || toSlug(category.name)
+      },
+      count: products.length,
+      total,
+      page: pageNumber,
+      totalPages: Math.ceil(total / limitNumber),
+      facets,
+      data: products
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+const getProductsByCategoryAndSubCategorySlug = async (req, res) => {
+  try {
+    const { categorySlug, subCategorySlug } = req.params;
+    const {
+      brand,
+      minPrice,
+      maxPrice,
+      sort = 'relevance',
+      limit = 20,
+      page = 1
+    } = req.query;
+
+    const category = await getCategoryBySlug(categorySlug);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found'
+      });
+    }
+
+    const subCategory = await getSubCategoryBySlug({
+      subCategorySlug,
+      categoryId: category._id
+    });
+
+    if (!subCategory) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sub category not found'
+      });
+    }
+
+    const query = {
+      isActive: true,
+      category: new RegExp(`^${escapeRegex(category.name)}$`, 'i'),
+      subCategory: new RegExp(`^${escapeRegex(subCategory.name)}$`, 'i')
+    };
+
+    if (brand && brand !== 'all') {
+      query.brand = new RegExp(escapeRegex(brand), 'i');
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    const pageNumber = parsePositiveNumber(page, 1);
+    const limitNumber = parsePositiveNumber(limit, 16, 100);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .sort(buildSortObject(sort))
+        .limit(limitNumber)
+        .skip(skip),
+      Product.countDocuments(query)
+    ]);
+
+    const facets = {};
+    if (total > 0) {
+      const facetResults = await Product.aggregate([
+        { $match: query },
+        {
+          $group: {
+            _id: null,
+            brands: { $addToSet: '$brand' }
+          }
+        }
+      ]);
+
+      if (facetResults.length > 0) {
+        facets.brands = facetResults[0].brands.filter(Boolean).sort();
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      category: {
+        _id: category._id,
+        name: category.name,
+        slug: category.slug || toSlug(category.name)
+      },
+      subCategory: {
+        _id: subCategory._id,
+        name: subCategory.name,
+        slug: subCategory.slug || toSlug(subCategory.name)
+      },
+      count: products.length,
+      total,
+      page: pageNumber,
+      totalPages: Math.ceil(total / limitNumber),
+      facets,
+      data: products
+    });
+  } catch (error) {
+    return res.status(500).json({
       success: false,
       message: error.message
     });
@@ -496,11 +878,16 @@ const deleteProduct = async (req, res) => {
 
 module.exports = {
   addProduct,
+  getMyProducts,
+  updateMyProductPrice,
+  deleteMyProduct,
   editProduct,
   getProduct,
   getAllProducts,
   getProductsByCategory,
   getProductsBySubCategory,
+  getProductsByCategorySlug,
+  getProductsByCategoryAndSubCategorySlug,
   searchProducts,
   deleteProduct
 };

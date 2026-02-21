@@ -11,41 +11,47 @@ const CategoryResults = () => {
 
   const [products, setProducts] = useState([])
   const [facets, setFacets] = useState({})
+  const [categoryInfo, setCategoryInfo] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [totalResults, setTotalResults] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
 
-  const categoryNameParam = (searchParams.get('name') || '').trim()
-  const categoryQueryParam = (searchParams.get('query') || '').trim()
-  const categoryFromSlug = decodeCategorySlug(categorySlug)
-
-  const categoryName = categoryNameParam || categoryFromSlug
-  const categoryQuery = categoryQueryParam || categoryName
+  const categoryName = categoryInfo?.name || decodeCategorySlug(categorySlug)
   const brand = searchParams.get('brand') || 'all'
   const sort = searchParams.get('sort') || 'relevance'
   const pageParam = parseInt(searchParams.get('page') || '1', 10)
   const page = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
 
-  const performCategorySearch = async () => {
+  const performCategoryFetch = async () => {
     try {
       setLoading(true)
       setError(null)
 
+      if (!categorySlug) {
+        setProducts([])
+        setFacets({})
+        setCategoryInfo(null)
+        setTotalResults(0)
+        setTotalPages(0)
+        setCurrentPage(1)
+        return
+      }
+
       const params = new URLSearchParams()
-      params.append('q', categoryQuery)
       if (brand && brand !== 'all') params.append('brand', brand)
       if (sort) params.append('sort', sort)
       params.append('page', page.toString())
       params.append('limit', '16')
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/search?${params}`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/products/category-slug/${encodeURIComponent(categorySlug)}?${params}`,
       )
 
       if (!response.ok) {
-        throw new Error('Failed to load category products')
+        const message = response.status === 404 ? 'Category not found' : 'Failed to load category products'
+        throw new Error(message)
       }
 
       const data = await response.json()
@@ -53,6 +59,7 @@ const CategoryResults = () => {
       if (data.success) {
         setProducts(Array.isArray(data.data) ? data.data : [])
         setFacets(data.facets || {})
+        setCategoryInfo(data.category || null)
         setTotalResults(Number(data.total) || 0)
         setTotalPages(Number(data.totalPages) || 0)
         setCurrentPage(Number(data.page) || 1)
@@ -64,6 +71,7 @@ const CategoryResults = () => {
       setError(fetchError.message || 'Failed to load category products')
       setProducts([])
       setFacets({})
+      setCategoryInfo(null)
       setTotalResults(0)
       setTotalPages(0)
       setCurrentPage(1)
@@ -73,17 +81,48 @@ const CategoryResults = () => {
   }
 
   useEffect(() => {
-    if (!categoryQuery) {
-      setLoading(false)
-      setProducts([])
-      setError(null)
-      return
+    performCategoryFetch()
+  }, [categorySlug, brand, sort, page])
+
+  useEffect(() => {
+    if (!searchParams.get('name') && !searchParams.get('query')) return
+
+    const cleanedParams = new URLSearchParams(searchParams)
+    cleanedParams.delete('name')
+    cleanedParams.delete('query')
+    setSearchParams(cleanedParams, { replace: true })
+  }, [searchParams, setSearchParams])
+
+  useEffect(() => {
+    if (!categorySlug) return
+
+    document.title = `${categoryName || 'Category'} Products`
+
+    const metaDescription = document.querySelector('meta[name="description"]')
+    if (metaDescription) {
+      metaDescription.setAttribute(
+        'content',
+        `Browse ${categoryName || 'category'} products with latest pricing, offers, and availability.`
+      )
     }
-    performCategorySearch()
-  }, [categoryQuery, brand, sort, page])
+
+    let canonical = document.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement('link')
+      canonical.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonical)
+    }
+
+    canonical.setAttribute(
+      'href',
+      `${window.location.origin}/category/${encodeURIComponent(categorySlug)}`
+    )
+  }, [categorySlug, categoryName])
 
   const updateSearchParams = (newParams) => {
     const params = new URLSearchParams(searchParams)
+    params.delete('name')
+    params.delete('query')
 
     Object.entries(newParams).forEach(([key, value]) => {
       if (value && value !== 'all') {
@@ -96,9 +135,6 @@ const CategoryResults = () => {
     if (Object.prototype.hasOwnProperty.call(newParams, 'brand') || Object.prototype.hasOwnProperty.call(newParams, 'sort')) {
       params.set('page', '1')
     }
-
-    if (categoryName) params.set('name', categoryName)
-    if (categoryQuery) params.set('query', categoryQuery)
 
     setSearchParams(params)
   }
@@ -119,7 +155,7 @@ const CategoryResults = () => {
     navigate(`/product/${product.slug || product._id}`)
   }
 
-  if (!categoryQuery) {
+  if (!categorySlug) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -223,7 +259,7 @@ const CategoryResults = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Category Error</h3>
             <p className="text-gray-600 mb-4">{error}</p>
             <button
-              onClick={performCategorySearch}
+              onClick={performCategoryFetch}
               className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition-colors"
             >
               Try Again
