@@ -210,8 +210,10 @@ const ProductsPage = ({
                   <select
                     value={productForm.category}
                     onChange={(event) => onProductFieldChange('category', event.target.value)}
+                    required
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
                   >
+                    <option value="">Select Category</option>
                     {categoryOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
@@ -224,8 +226,10 @@ const ProductsPage = ({
                   <select
                     value={productForm.subCategory}
                     onChange={(event) => onProductFieldChange('subCategory', event.target.value)}
+                    required
                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
                   >
+                    <option value="">Select Sub Category</option>
                     {subCategories.map((item) => (
                       <option key={item} value={item}>
                         {toLabel(item)}

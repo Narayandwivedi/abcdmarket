@@ -6,27 +6,6 @@ import SettingsPage from './seller/SettingsPage'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
-const CATEGORY_CONFIG = {
-  'pc-parts': {
-    label: 'PC Parts',
-    subCategories: ['graphics-card', 'processors', 'motherboards', 'memory', 'storage', 'monitors'],
-  },
-  'pc-builds': {
-    label: 'PC Builds',
-    subCategories: ['gaming-build', 'office-build', 'workstation-build', 'budget-build', 'high-end-build', 'streaming-build'],
-  },
-  laptops: {
-    label: 'Laptops',
-    subCategories: ['gaming-laptop', 'office-laptop'],
-  },
-  'computer-accessories': {
-    label: 'Computer Accessories',
-    subCategories: ['keyboard', 'mouse', 'headset', 'monitor', 'mousepad', 'controller', 'webcam', 'microphone', 'laptop-bag', 'gaming-chair', 'speakers', 'cooling-pad', 'usb-hub', 'docking-station', 'cable', 'adapter'],
-  },
-}
-
-const CATEGORY_OPTIONS = Object.entries(CATEGORY_CONFIG).map(([value, conf]) => ({ value, label: conf.label }))
-
 const SELLER_SECTIONS = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'products', label: 'Products' },
@@ -39,14 +18,16 @@ const toLabel = (value = '') =>
     .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1) : part))
     .join(' ')
 
+const normalizeValue = (value = '') => String(value || '').trim()
+
 const initialLoginData = { emailOrMobile: '', password: '' }
 const initialSignupData = { name: '', mobile: '', email: '', state: '', district: '', password: '' }
 
-const getInitialProductData = () => ({
+const getInitialProductData = (category = '', subCategory = '') => ({
   seoTitle: '',
   description: '',
-  category: 'pc-parts',
-  subCategory: 'graphics-card',
+  category,
+  subCategory,
   brand: '',
   model: '',
   price: '',
@@ -63,6 +44,8 @@ const Login = () => {
   const [signupData, setSignupData] = useState(initialSignupData)
 
   const [products, setProducts] = useState([])
+  const [categoryOptions, setCategoryOptions] = useState([])
+  const [subCategoryMap, setSubCategoryMap] = useState({})
   const [productForm, setProductForm] = useState(getInitialProductData)
   const [priceDrafts, setPriceDrafts] = useState({})
 
@@ -74,7 +57,10 @@ const Login = () => {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  const subCategories = useMemo(() => CATEGORY_CONFIG[productForm.category]?.subCategories || [], [productForm.category])
+  const subCategories = useMemo(
+    () => subCategoryMap[productForm.category] || [],
+    [subCategoryMap, productForm.category]
+  )
 
   const clearFeedback = () => {
     setMessage('')
@@ -90,6 +76,140 @@ const Login = () => {
       }
     })
     setPriceDrafts(drafts)
+  }
+
+  const fetchCatalogData = async (endpoints, fallbackMessage) => {
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: 'GET',
+          credentials: 'include',
+        })
+        const data = await response.json()
+        if (response.ok && data.success) {
+          return data
+        }
+      } catch (err) {
+        // Try next endpoint fallback.
+      }
+    }
+
+    throw new Error(fallbackMessage)
+  }
+
+  const loadCategoryTaxonomy = async ({ showError = false } = {}) => {
+    try {
+      const [categoryPayload, subCategoryPayload] = await Promise.all([
+        fetchCatalogData(
+          ['/api/shop-categories/admin', '/api/shop-categories?limit=200'],
+          'Failed to load categories'
+        ),
+        fetchCatalogData(
+          ['/api/sub-categories/admin', '/api/sub-categories?limit=500'],
+          'Failed to load sub categories'
+        ),
+      ])
+
+      const categories = Array.isArray(categoryPayload?.data) ? categoryPayload.data : []
+      const subCategoriesFromApi = Array.isArray(subCategoryPayload?.data) ? subCategoryPayload.data : []
+
+      const categoryIdToNameMap = new Map()
+      const nextCategoryOptions = []
+      const seenCategoryNames = new Set()
+
+      categories.forEach((category) => {
+        const categoryId = normalizeValue(category?._id)
+        const categoryName = normalizeValue(category?.name)
+
+        if (categoryId && categoryName) {
+          categoryIdToNameMap.set(categoryId, categoryName)
+        }
+
+        if (!categoryName) return
+
+        const key = categoryName.toLowerCase()
+        if (seenCategoryNames.has(key)) return
+        seenCategoryNames.add(key)
+        nextCategoryOptions.push({
+          value: categoryName,
+          label: categoryName,
+        })
+      })
+
+      const nextSubCategoryMap = {}
+      nextCategoryOptions.forEach((option) => {
+        nextSubCategoryMap[option.value] = []
+      })
+
+      subCategoriesFromApi.forEach((subCategory) => {
+        const subCategoryName = normalizeValue(subCategory?.name)
+        if (!subCategoryName) return
+
+        let categoryName = ''
+        if (subCategory?.category && typeof subCategory.category === 'object') {
+          categoryName =
+            normalizeValue(subCategory.category.name) ||
+            categoryIdToNameMap.get(normalizeValue(subCategory.category._id)) ||
+            ''
+        } else {
+          categoryName = categoryIdToNameMap.get(normalizeValue(subCategory?.category)) || ''
+        }
+
+        if (!categoryName) return
+
+        if (!nextSubCategoryMap[categoryName]) {
+          nextSubCategoryMap[categoryName] = []
+        }
+
+        const alreadyExists = nextSubCategoryMap[categoryName].some(
+          (name) => name.toLowerCase() === subCategoryName.toLowerCase()
+        )
+
+        if (!alreadyExists) {
+          nextSubCategoryMap[categoryName].push(subCategoryName)
+        }
+      })
+
+      Object.keys(nextSubCategoryMap).forEach((categoryName) => {
+        nextSubCategoryMap[categoryName].sort((firstName, secondName) =>
+          firstName.localeCompare(secondName)
+        )
+      })
+
+      setCategoryOptions(nextCategoryOptions)
+      setSubCategoryMap(nextSubCategoryMap)
+
+      setProductForm((prev) => {
+        const defaultCategory = nextCategoryOptions[0]?.value || ''
+        const selectedCategory = nextCategoryOptions.some(
+          (option) => option.value === prev.category
+        )
+          ? prev.category
+          : defaultCategory
+
+        const categorySubCategories = nextSubCategoryMap[selectedCategory] || []
+        const selectedSubCategory = categorySubCategories.includes(prev.subCategory)
+          ? prev.subCategory
+          : categorySubCategories[0] || ''
+
+        if (
+          prev.category === selectedCategory &&
+          prev.subCategory === selectedSubCategory
+        ) {
+          return prev
+        }
+
+        return {
+          ...prev,
+          category: selectedCategory,
+          subCategory: selectedSubCategory,
+        }
+      })
+    } catch (err) {
+      if (showError) {
+        setError(err.message || 'Failed to load categories')
+      }
+    }
   }
 
   const loadMyProducts = async () => {
@@ -122,7 +242,10 @@ const Login = () => {
       if (response.ok && data.success) {
         setSellerProfile(data.sellerData)
         setActiveSection('dashboard')
-        await loadMyProducts()
+        await Promise.all([
+          loadMyProducts(),
+          loadCategoryTaxonomy({ showError: true }),
+        ])
       }
     } catch (err) {
       // no-op
@@ -132,6 +255,11 @@ const Login = () => {
   useEffect(() => {
     checkSession()
   }, [])
+
+  useEffect(() => {
+    if (!sellerProfile || activeSection !== 'products') return
+    loadCategoryTaxonomy({ showError: true })
+  }, [sellerProfile, activeSection])
 
   const handleLoginSubmit = async (event) => {
     event.preventDefault()
@@ -151,7 +279,10 @@ const Login = () => {
       setLoginData(initialLoginData)
       setActiveSection('dashboard')
       setMessage(data.message || 'Login successful')
-      await loadMyProducts()
+      await Promise.all([
+        loadMyProducts(),
+        loadCategoryTaxonomy({ showError: true }),
+      ])
     } catch (err) {
       setError(err.message || 'Seller login failed')
     } finally {
@@ -177,7 +308,10 @@ const Login = () => {
       setSignupData(initialSignupData)
       setActiveSection('dashboard')
       setMessage(data.message || 'Seller account created successfully')
-      await loadMyProducts()
+      await Promise.all([
+        loadMyProducts(),
+        loadCategoryTaxonomy({ showError: true }),
+      ])
     } catch (err) {
       setError(err.message || 'Seller signup failed')
     } finally {
@@ -199,6 +333,9 @@ const Login = () => {
       setSellerProfile(null)
       setProducts([])
       setPriceDrafts({})
+      setCategoryOptions([])
+      setSubCategoryMap({})
+      setProductForm(getInitialProductData())
       setActiveSection('dashboard')
       setMessage(data.message || 'Logged out successfully')
     } catch (err) {
@@ -210,7 +347,7 @@ const Login = () => {
 
   const handleProductFieldChange = (field, value) => {
     if (field === 'category') {
-      const firstSubCategory = CATEGORY_CONFIG[value]?.subCategories?.[0] || ''
+      const firstSubCategory = subCategoryMap[value]?.[0] || ''
       setProductForm((prev) => ({ ...prev, category: value, subCategory: firstSubCategory }))
       return
     }
@@ -264,7 +401,9 @@ const Login = () => {
       if (!response.ok || !data.success) throw new Error(data.message || 'Failed to add product')
 
       setMessage('Product added successfully')
-      setProductForm(getInitialProductData())
+      const defaultCategory = categoryOptions[0]?.value || ''
+      const defaultSubCategory = subCategoryMap[defaultCategory]?.[0] || ''
+      setProductForm(getInitialProductData(defaultCategory, defaultSubCategory))
       await loadMyProducts()
     } catch (err) {
       setError(err.message || 'Failed to add product')
@@ -504,7 +643,7 @@ const Login = () => {
         )}
         {activeSection === 'products' && (
           <ProductsPage
-            categoryOptions={CATEGORY_OPTIONS}
+            categoryOptions={categoryOptions}
             subCategories={subCategories}
             productForm={productForm}
             onProductFieldChange={handleProductFieldChange}
