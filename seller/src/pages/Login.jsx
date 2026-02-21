@@ -1,6 +1,37 @@
+
 import { useEffect, useMemo, useState } from 'react'
+import DashboardPage from './seller/DashboardPage'
+import ProductsPage from './seller/ProductsPage'
+import SettingsPage from './seller/SettingsPage'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+const CATEGORY_CONFIG = {
+  'pc-parts': {
+    label: 'PC Parts',
+    subCategories: ['graphics-card', 'processors', 'motherboards', 'memory', 'storage', 'monitors'],
+  },
+  'pc-builds': {
+    label: 'PC Builds',
+    subCategories: ['gaming-build', 'office-build', 'workstation-build', 'budget-build', 'high-end-build', 'streaming-build'],
+  },
+  laptops: {
+    label: 'Laptops',
+    subCategories: ['gaming-laptop', 'office-laptop'],
+  },
+  'computer-accessories': {
+    label: 'Computer Accessories',
+    subCategories: ['keyboard', 'mouse', 'headset', 'monitor', 'mousepad', 'controller', 'webcam', 'microphone', 'laptop-bag', 'gaming-chair', 'speakers', 'cooling-pad', 'usb-hub', 'docking-station', 'cable', 'adapter'],
+  },
+}
+
+const CATEGORY_OPTIONS = Object.entries(CATEGORY_CONFIG).map(([value, conf]) => ({ value, label: conf.label }))
+
+const SELLER_SECTIONS = [
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'products', label: 'Products' },
+  { key: 'settings', label: 'Settings' },
+]
 
 const toLabel = (value = '') =>
   String(value)
@@ -10,6 +41,7 @@ const toLabel = (value = '') =>
 
 const initialLoginData = { emailOrMobile: '', password: '' }
 const initialSignupData = { name: '', mobile: '', email: '', state: '', district: '', password: '' }
+
 const getInitialProductData = () => ({
   seoTitle: '',
   description: '',
@@ -24,6 +56,8 @@ const getInitialProductData = () => ({
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState('login')
+  const [activeSection, setActiveSection] = useState('dashboard')
+
   const [sellerProfile, setSellerProfile] = useState(null)
   const [loginData, setLoginData] = useState(initialLoginData)
   const [signupData, setSignupData] = useState(initialSignupData)
@@ -47,7 +81,7 @@ const Login = () => {
     setError('')
   }
 
-  const syncDrafts = (items) => {
+  const syncPriceDrafts = (items) => {
     const drafts = {}
     items.forEach((item) => {
       drafts[item._id] = {
@@ -67,9 +101,10 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Failed to load products')
+
       const items = Array.isArray(data.data) ? data.data : []
       setProducts(items)
-      syncDrafts(items)
+      syncPriceDrafts(items)
     } catch (err) {
       setError(err.message || 'Failed to load products')
     } finally {
@@ -79,10 +114,14 @@ const Login = () => {
 
   const checkSession = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/seller-auth/me`, { method: 'GET', credentials: 'include' })
+      const response = await fetch(`${API_BASE_URL}/api/seller-auth/me`, {
+        method: 'GET',
+        credentials: 'include',
+      })
       const data = await response.json()
       if (response.ok && data.success) {
         setSellerProfile(data.sellerData)
+        setActiveSection('dashboard')
         await loadMyProducts()
       }
     } catch (err) {
@@ -107,8 +146,10 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Seller login failed')
+
       setSellerProfile(data.sellerData)
       setLoginData(initialLoginData)
+      setActiveSection('dashboard')
       setMessage(data.message || 'Login successful')
       await loadMyProducts()
     } catch (err) {
@@ -131,8 +172,10 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Seller signup failed')
+
       setSellerProfile(data.sellerData)
       setSignupData(initialSignupData)
+      setActiveSection('dashboard')
       setMessage(data.message || 'Seller account created successfully')
       await loadMyProducts()
     } catch (err) {
@@ -152,9 +195,11 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Logout failed')
+
       setSellerProfile(null)
       setProducts([])
       setPriceDrafts({})
+      setActiveSection('dashboard')
       setMessage(data.message || 'Logged out successfully')
     } catch (err) {
       setError(err.message || 'Logout failed')
@@ -195,10 +240,6 @@ const Login = () => {
       setError('Please enter a valid price')
       return
     }
-    if (Number.isNaN(payload.stockQuantity) || payload.stockQuantity < 0) {
-      setError('Please enter a valid stock quantity')
-      return
-    }
 
     if (productForm.originalPrice !== '') {
       const original = Number(productForm.originalPrice)
@@ -221,6 +262,7 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Failed to add product')
+
       setMessage('Product added successfully')
       setProductForm(getInitialProductData())
       await loadMyProducts()
@@ -252,8 +294,9 @@ const Login = () => {
 
     const payload = { price }
     if (draft.originalPrice !== undefined) {
-      if (draft.originalPrice === '') payload.originalPrice = ''
-      else {
+      if (draft.originalPrice === '') {
+        payload.originalPrice = ''
+      } else {
         const original = Number(draft.originalPrice)
         if (Number.isNaN(original) || original < 0) {
           setError('Enter a valid original price')
@@ -273,6 +316,7 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Failed to update price')
+
       setMessage('Price updated successfully')
       await loadMyProducts()
     } catch (err) {
@@ -294,6 +338,7 @@ const Login = () => {
       })
       const data = await response.json()
       if (!response.ok || !data.success) throw new Error(data.message || 'Failed to delete product')
+
       setMessage('Product deleted successfully')
       await loadMyProducts()
     } catch (err) {
@@ -317,14 +362,22 @@ const Login = () => {
           <div className="mb-5">
             <p className="text-sm font-semibold tracking-wide text-cyan-700">ABCDMARKET SELLER PANEL</p>
             <h1 className="mt-1 text-2xl font-black text-slate-900">Seller Login / Signup</h1>
-            <p className="mt-1 text-sm text-slate-600">Login first to access seller dashboard.</p>
+            <p className="mt-1 text-sm text-slate-600">Login first to access seller pages.</p>
           </div>
 
           <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-            <button type="button" onClick={() => { clearFeedback(); setActiveTab('login') }} className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${activeTab === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
+            <button
+              type="button"
+              onClick={() => { clearFeedback(); setActiveTab('login') }}
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${activeTab === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+            >
               Login
             </button>
-            <button type="button" onClick={() => { clearFeedback(); setActiveTab('signup') }} className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${activeTab === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}>
+            <button
+              type="button"
+              onClick={() => { clearFeedback(); setActiveTab('signup') }}
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${activeTab === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+            >
               Signup
             </button>
           </div>
@@ -333,11 +386,23 @@ const Login = () => {
             <form className="space-y-4" onSubmit={handleLoginSubmit}>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Email or Mobile</label>
-                <input type="text" value={loginData.emailOrMobile} onChange={(e) => setLoginData((prev) => ({ ...prev, emailOrMobile: e.target.value }))} placeholder="Enter email or mobile" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input
+                  type="text"
+                  value={loginData.emailOrMobile}
+                  onChange={(event) => setLoginData((prev) => ({ ...prev, emailOrMobile: event.target.value }))}
+                  required
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
-                <input type="password" value={loginData.password} onChange={(e) => setLoginData((prev) => ({ ...prev, password: e.target.value }))} placeholder="Enter password" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input
+                  type="password"
+                  value={loginData.password}
+                  onChange={(event) => setLoginData((prev) => ({ ...prev, password: event.target.value }))}
+                  required
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+                />
               </div>
               <button type="submit" disabled={authLoading} className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-orange-600 hover:to-cyan-700 disabled:cursor-not-allowed disabled:opacity-60">
                 {authLoading ? 'Please wait...' : 'Login as Seller'}
@@ -347,29 +412,23 @@ const Login = () => {
             <form className="space-y-4" onSubmit={handleSignupSubmit}>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Name</label>
-                <input type="text" value={signupData.name} onChange={(e) => setSignupData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Enter your full name" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input type="text" value={signupData.name} onChange={(event) => setSignupData((prev) => ({ ...prev, name: event.target.value }))} required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Mobile</label>
-                <input type="tel" value={signupData.mobile} onChange={(e) => setSignupData((prev) => ({ ...prev, mobile: e.target.value }))} placeholder="Enter 10-digit mobile" required pattern="[6-9]{1}[0-9]{9}" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input type="tel" value={signupData.mobile} onChange={(event) => setSignupData((prev) => ({ ...prev, mobile: event.target.value }))} required pattern="[6-9]{1}[0-9]{9}" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
-                <input type="email" value={signupData.email} onChange={(e) => setSignupData((prev) => ({ ...prev, email: e.target.value }))} placeholder="Enter email address" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input type="email" value={signupData.email} onChange={(event) => setSignupData((prev) => ({ ...prev, email: event.target.value }))} required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">State</label>
-                  <input type="text" value={signupData.state} onChange={(e) => setSignupData((prev) => ({ ...prev, state: e.target.value }))} placeholder="State" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">District</label>
-                  <input type="text" value={signupData.district} onChange={(e) => setSignupData((prev) => ({ ...prev, district: e.target.value }))} placeholder="District" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
+                <input type="text" value={signupData.state} onChange={(event) => setSignupData((prev) => ({ ...prev, state: event.target.value }))} placeholder="State" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input type="text" value={signupData.district} onChange={(event) => setSignupData((prev) => ({ ...prev, district: event.target.value }))} placeholder="District" required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
-                <input type="password" value={signupData.password} onChange={(e) => setSignupData((prev) => ({ ...prev, password: e.target.value }))} placeholder="Enter password" required minLength={6} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
+                <input type="password" value={signupData.password} onChange={(event) => setSignupData((prev) => ({ ...prev, password: event.target.value }))} required minLength={6} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
               </div>
               <button type="submit" disabled={authLoading} className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-orange-600 hover:to-cyan-700 disabled:cursor-not-allowed disabled:opacity-60">
                 {authLoading ? 'Please wait...' : 'Signup as Seller'}
@@ -384,131 +443,96 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-cyan-100 px-4 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-6xl space-y-5">
-        <div className="rounded-2xl border border-white/60 bg-white/90 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-md sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold tracking-wide text-cyan-700">ABCDMARKET SELLER PANEL</p>
-              <h1 className="mt-1 text-2xl font-black text-slate-900">Seller Dashboard</h1>
-              <p className="mt-1 text-sm text-slate-600">Logged in as {sellerProfile.name} ({sellerProfile.email})</p>
-            </div>
-            <button type="button" onClick={handleLogout} disabled={authLoading} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60">
-              {authLoading ? 'Please wait...' : 'Logout'}
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-cyan-100">
+      <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col border-r border-white/60 bg-white/95 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-md lg:flex">
+        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Seller Panel</p>
+        <h2 className="mt-1 text-lg font-black text-slate-900">ABCDMARKET</h2>
+        <p className="mt-1 truncate text-xs text-slate-600">{sellerProfile.email}</p>
+
+        <div className="mt-4 space-y-2">
+          {SELLER_SECTIONS.map((section) => (
+            <button
+              key={section.key}
+              type="button"
+              onClick={() => setActiveSection(section.key)}
+              className={`w-full rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
+                activeSection === section.key
+                  ? 'bg-gradient-to-r from-orange-500 to-cyan-600 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              {section.label}
             </button>
-          </div>
-          <div className="mt-4">{renderFeedback()}</div>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[360px_1fr]">
-          <div className="rounded-2xl border border-white/60 bg-white/90 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-md sm:p-6">
-            <h2 className="text-lg font-bold text-slate-900">Add Product</h2>
-            <p className="mt-1 text-sm text-slate-600">Only logged-in sellers can create products.</p>
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={authLoading}
+          className="mt-auto w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {authLoading ? 'Please wait...' : 'Logout'}
+        </button>
+      </aside>
 
-            <form className="mt-4 space-y-3" onSubmit={handleAddProduct}>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Product Title *</label>
-                <input type="text" value={productForm.seoTitle} onChange={(e) => handleProductFieldChange('seoTitle', e.target.value)} required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">Description *</label>
-                <textarea value={productForm.description} onChange={(e) => handleProductFieldChange('description', e.target.value)} required rows={3} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Category *</label>
-                  <select value={productForm.category} onChange={(e) => handleProductFieldChange('category', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100">
-                    {CATEGORY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Sub Category *</label>
-                  <select value={productForm.subCategory} onChange={(e) => handleProductFieldChange('subCategory', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100">
-                    {subCategories.map((item) => (
-                      <option key={item} value={item}>{toLabel(item)}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Brand *</label>
-                  <input type="text" value={productForm.brand} onChange={(e) => handleProductFieldChange('brand', e.target.value)} required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Model</label>
-                  <input type="text" value={productForm.model} onChange={(e) => handleProductFieldChange('model', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Price *</label>
-                  <input type="number" min="0" step="0.01" value={productForm.price} onChange={(e) => handleProductFieldChange('price', e.target.value)} required className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Original Price</label>
-                  <input type="number" min="0" step="0.01" value={productForm.originalPrice} onChange={(e) => handleProductFieldChange('originalPrice', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Stock</label>
-                  <input type="number" min="0" value={productForm.stockQuantity} onChange={(e) => handleProductFieldChange('stockQuantity', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                </div>
-              </div>
-              <button type="submit" disabled={addLoading} className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:from-orange-600 hover:to-cyan-700 disabled:cursor-not-allowed disabled:opacity-60">
-                {addLoading ? 'Adding product...' : 'Add Product'}
+      <main className="space-y-4 px-4 py-6 sm:px-6 lg:ml-64 lg:px-8 lg:py-8">
+        <div className="rounded-2xl border border-white/60 bg-white/90 p-4 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-md lg:hidden">
+          <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Seller Panel</p>
+          <h2 className="mt-1 text-lg font-black text-slate-900">ABCDMARKET</h2>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {SELLER_SECTIONS.map((section) => (
+              <button
+                key={section.key}
+                type="button"
+                onClick={() => setActiveSection(section.key)}
+                className={`rounded-lg px-2 py-2 text-xs font-semibold transition ${
+                  activeSection === section.key
+                    ? 'bg-gradient-to-r from-orange-500 to-cyan-600 text-white'
+                    : 'bg-slate-100 text-slate-700'
+                }`}
+              >
+                {section.label}
               </button>
-            </form>
+            ))}
           </div>
-
-          <div className="rounded-2xl border border-white/60 bg-white/90 p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] backdrop-blur-md sm:p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">My Products</h2>
-              <button type="button" onClick={loadMyProducts} disabled={productsLoading} className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60">
-                {productsLoading ? 'Refreshing...' : 'Refresh'}
-              </button>
-            </div>
-
-            {productsLoading ? (
-              <p className="mt-4 text-sm text-slate-600">Loading your products...</p>
-            ) : products.length === 0 ? (
-              <p className="mt-4 text-sm text-slate-600">No products listed yet.</p>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {products.map((product) => {
-                  const draft = priceDrafts[product._id] || { price: '', originalPrice: '' }
-                  const updating = actionLoading === `price-${product._id}`
-                  const deleting = actionLoading === `delete-${product._id}`
-
-                  return (
-                    <div key={product._id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                      <div className="flex flex-col gap-1">
-                        <h3 className="text-sm font-semibold text-slate-900">{product.seoTitle}</h3>
-                        <p className="text-xs text-slate-500">{toLabel(product.category)} / {toLabel(product.subCategory)} / {product.brand}</p>
-                        <p className="text-xs text-slate-500">Current price: {product.price} {product.originalPrice ? `(Original: ${product.originalPrice})` : ''}</p>
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        <input type="number" min="0" step="0.01" value={draft.price} onChange={(e) => handlePriceDraftChange(product._id, 'price', e.target.value)} placeholder="New price" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                        <input type="number" min="0" step="0.01" value={draft.originalPrice} onChange={(e) => handlePriceDraftChange(product._id, 'originalPrice', e.target.value)} placeholder="Original price" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100" />
-                        <button type="button" onClick={() => handleUpdatePrice(product._id)} disabled={updating || deleting} className="rounded-lg bg-cyan-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-60">
-                          {updating ? 'Updating...' : 'Update Price'}
-                        </button>
-                      </div>
-
-                      <button type="button" onClick={() => handleDeleteProduct(product._id)} disabled={updating || deleting} className="mt-3 rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60">
-                        {deleting ? 'Deleting...' : 'Delete Product'}
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={authLoading}
+            className="mt-3 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {authLoading ? 'Please wait...' : 'Logout'}
+          </button>
         </div>
-      </div>
+
+        {renderFeedback()}
+        {activeSection === 'dashboard' && (
+          <DashboardPage sellerProfile={sellerProfile} products={products} onGoToProducts={() => setActiveSection('products')} />
+        )}
+        {activeSection === 'products' && (
+          <ProductsPage
+            categoryOptions={CATEGORY_OPTIONS}
+            subCategories={subCategories}
+            productForm={productForm}
+            onProductFieldChange={handleProductFieldChange}
+            onAddProduct={handleAddProduct}
+            addLoading={addLoading}
+            products={products}
+            productsLoading={productsLoading}
+            onRefreshProducts={loadMyProducts}
+            priceDrafts={priceDrafts}
+            onPriceDraftChange={handlePriceDraftChange}
+            onUpdatePrice={handleUpdatePrice}
+            onDeleteProduct={handleDeleteProduct}
+            actionLoading={actionLoading}
+            toLabel={toLabel}
+          />
+        )}
+        {activeSection === 'settings' && (
+          <SettingsPage sellerProfile={sellerProfile} onLogout={handleLogout} authLoading={authLoading} />
+        )}
+      </main>
     </div>
   )
 }
