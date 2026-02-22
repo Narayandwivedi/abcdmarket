@@ -4,7 +4,8 @@ const userModel = require("../models/User.js");
 const transporter = require("../config/nodemailer.js");
 const { OAuth2Client } = require("google-auth-library");
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
 const handelUserSignup = async (req, res) => {
   try {
@@ -327,6 +328,13 @@ const isloggedin = async (req, res) => {
 // Google OAuth Handler
 const handleGoogleAuth = async (req, res) => {
   try {
+    if (!GOOGLE_CLIENT_ID || !client) {
+      return res.status(500).json({
+        success: false,
+        message: "Google authentication is not configured on server",
+      });
+    }
+
     const { credential } = req.body;
 
     if (!credential) {
@@ -339,7 +347,7 @@ const handleGoogleAuth = async (req, res) => {
     // Verify Google token
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();

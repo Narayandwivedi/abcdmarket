@@ -4,12 +4,20 @@ import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
 
 const GoogleLogin = () => {
-  const { BACKEND_URL, checkAuthStatus } = useContext(AppContext);
+  const { googleLogin } = useContext(AppContext);
   const navigate = useNavigate();
   const googleButtonRef = useRef(null);
   const isGoogleLoaded = useRef(false);
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
 
   useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) {
+      console.error('Missing VITE_GOOGLE_CLIENT_ID in frontend env');
+      return;
+    }
+
+    let timeoutId;
+
     // Check if Google script is loaded
     const checkGoogleLoaded = () => {
       if (window.google && window.google.accounts && !isGoogleLoaded.current) {
@@ -17,12 +25,16 @@ const GoogleLogin = () => {
         isGoogleLoaded.current = true;
       } else if (!isGoogleLoaded.current) {
         // Retry after a short delay
-        setTimeout(checkGoogleLoaded, 100);
+        timeoutId = setTimeout(checkGoogleLoaded, 100);
       }
     };
 
     checkGoogleLoaded();
-  }, []);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [GOOGLE_CLIENT_ID]);
 
   const initializeGoogleSignIn = () => {
     if (!window.google) {
@@ -33,7 +45,7 @@ const GoogleLogin = () => {
     try {
       
       window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        client_id: GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
         auto_select: false,
         cancel_on_tap_outside: true,
@@ -59,7 +71,7 @@ const GoogleLogin = () => {
       console.error('Error details:', {
         message: error.message,
         stack: error.stack,
-        clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        clientId: GOOGLE_CLIENT_ID,
         domain: window.location.origin
       });
     }
@@ -67,35 +79,19 @@ const GoogleLogin = () => {
 
   const handleCredentialResponse = async (response) => {
     try {
-      const result = await fetch(`${BACKEND_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          credential: response.credential
-        }),
-      });
+      const result = await googleLogin(response.credential);
 
-
-      const data = await result.json();
-
-      if (data.success) {
-        // Update auth state and redirect
-        await checkAuthStatus();
+      if (result.success) {
         navigate('/');
       } else {
-        console.error('Backend login failed:', data.message);
-        toast.error(data.message || 'Google login failed');
+        toast.error(result.error || 'Google login failed');
       }
     } catch (error) {
       console.error('Google login error:', error);
       console.error('Error details:', {
         message: error.message,
         stack: error.stack,
-        name: error.name,
-        backendUrl: BACKEND_URL
+        name: error.name
       });
       toast.error('Google login failed. Please try again.');
     }

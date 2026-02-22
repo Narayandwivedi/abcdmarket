@@ -6,6 +6,10 @@ node_modules/
 .env
 .env.*
 !.env.example
+backend/.env
+frontend/.env
+admin/.env
+seller/.env
 
 # Build output
 dist/
